@@ -1,0 +1,142 @@
+.product-container {
+  display: flex;
+  justify-content: center;
+  gap: 64px;
+  padding: 64px;
+}
+
+.images-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.main-image {
+  width: 500px;
+  height: 500px;
+  object-fit: contain;
+  border: 2px solid lightgray;
+  border-radius: 8px;
+}
+
+.secondary-images-container {
+  width: 500px;
+  display: flex;
+  justify-content: start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.secondary-image {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  border: 2px solid lightgray;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.image-selected {
+  border-color: var(--primary-color-dark);
+}
+
+.info-container {
+  max-width: 700px;
+}
+
+.product-price {
+  margin-top: 8px;
+}
+
+.product-description {
+  margin-top: 8px;
+}
+
+.buy-button {
+  margin-top: 16px;
+  padding: 8px 32px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--primary-color);
+  cursor: pointer;
+  font-family: "Sora", sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.buy-button:hover {
+  background-color: var(--primary-color-dark);
+}
+
+.info-heading {
+  margin-top: 16px;
+}
+
+.seller-container {
+  margin-top: 8px;
+}
+
+.info-text {
+  margin-top: 4px;
+}
+
+@media only screen and (max-width: 1200px) {
+  .product-container {
+    gap: 32px;
+  }
+
+  .main-image {
+    width: 400px;
+    height: 400px;
+  }
+
+  .secondary-images-container {
+    width: 400px;
+  }
+
+  .product-name {
+    font-size: 28px;
+  }
+
+  .product-price {
+    font-size: 24px;
+  }
+
+  .info-heading {
+    font-size: 24px;
+  }
+}
+
+@media only screen and (max-width: 900px) {
+  .main-image {
+    width: 350px;
+    height: 350px;
+  }
+
+  .secondary-images-container {
+    width: 350px;
+  }
+
+  .product-container {
+    padding: 64px 32px;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .product-container {
+    flex-direction: column;
+    padding: 64px 16px;
+  }
+
+  .main-image {
+    width: 100%;
+    height: auto;
+    max-width: 500px;
+  }
+
+  .secondary-images-container {
+    width: 100%;
+    max-width: 500px;
+  }
+}

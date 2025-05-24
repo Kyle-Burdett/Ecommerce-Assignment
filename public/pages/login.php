@@ -14,8 +14,113 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Sora:wght@100..800&display=swap"
     rel="stylesheet">
-  <title>Sign up Page</title>
+  <title>Login Page</title>
 </head>
+
+<?php
+
+  $nameRegex = '/^[a-zA-Z\s]+$/';
+  $errors = array('first-name'=>'', 'last-name'=>'', 'email'=>'');
+
+  $firstName = $lastName = $email = '';
+
+  if ($_SERVER['REQUEST_METHOD'] == "POST") {
+
+    $firstName = trimInput($_POST['first-name']);
+    $lastName = trimInput($_POST['last-name']);
+    $email = trimInput($_POST['email']);
+
+    if (empty($firstName)) {
+      $errors['first-name'] = "A first name is required.";
+    } else {
+      if (!preg_match($nameRegex, $firstName)) {
+        $errors['first-name'] = "Name should have only upper and lower case characters(A-Z, a-z).";
+      } else {
+        $errors['first-name'] = "";
+      }
+    }
+
+    if (empty($lastName)) {
+      $errors['last-name'] = "A last name is required.";
+    } else {
+      if (!preg_match($nameRegex, $lastName)) {
+        $errors['last-name'] = "Name should have only upper and lower case characters(A-Z, a-z).";
+      } else {
+        $errors['last-name'] = "";
+      }
+    }
+
+    if (empty($email)) {
+      $errors['email'] = "An email is required.";
+    } else {
+      if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors['email'] = "Invalid email.";
+      } else {
+        $errors['email'] = "";
+      }
+    }
+
+    if (isset($_POST['first-game'])) {
+      $firstSouls = $_POST['first-game'];
+    } else {
+      $firstSouls = "";
+    }
+
+    if (isset($_POST['favourite-game'])) {
+      $favSouls = $_POST['favourite-game'];
+    } else {
+      $favSouls = "";
+    }
+
+    if (isset($_POST['hardest-boss'])) {
+      $hardestBoss = $_POST['hardest-boss'];
+    } else {
+      $hardestBoss = "";
+    }
+
+    if (isset($_POST['shield'])) {
+      $useShieldText = $_POST['shield'];
+      if ($useShieldText == "1") {
+        $useShield = 1;
+      } else {
+        $useShield = 0;
+      }
+    } else {
+      $useShield = 0;
+    }
+
+    if (isset($_POST['favourite-boss'])) {
+      $favBoss = $_POST['favourite-boss'];
+    } else {
+      $favBoss = "";
+    }
+
+    if (!array_filter($errors)) {
+
+      $link = mysqli_connect("localhost", "root", "", "darksoulsdb");
+
+      if ($link === false) {
+        die("Error: Failed to connect. ".mysqli_connect_error());
+      }
+      $sqlPrep = mysqli_prepare($link, "INSERT INTO soulanswers (firstName, lastName, email, firstSouls, favSouls, hardestBoss, shield, bestBoss) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+      if ($sqlPrep) {
+        mysqli_stmt_bind_param($sqlPrep, "ssssssis", $firstName, $lastName, $email, $firstSouls, $favSouls, $hardestBoss, $useShield, $favBoss);
+        mysqli_stmt_execute($sqlPrep);
+        mysqli_stmt_close($sqlPrep);
+      }
+
+      mysqli_close($link);
+
+      header('Location: thank-you.php');
+    }
+
+  }
+
+  function trimInput($data) {
+    $data = trim($data);
+    return $data;
+  }
+?>
 
 <body>
   <header class="header">
@@ -53,29 +158,17 @@
       </form>
     </div>
   </header>
-  <section class="signup-section">
+  <section class="login-section">
     <div class="login-block">
-      <h2>Create an Account</h2>
+      <h2>Login</h2>
       <form class="login-form">
-        <div class="name-inputs-wrapper">
-          <div class="name-input-container">
-            <label class="login-label" for="first-name">First Name</label>
-            <input type="text" id="first-name" name="first-name" class="login-input login-input-first" required>
-          </div>
-          <div class="name-input-container">
-            <label class="login-label" for="last-name">Last Name</label>
-            <input type="text" id="last-name" name="last-name" class="login-input login-input-first" required>
-          </div>
-        </div>
         <label class="login-label" for="email">Email Address</label>
         <input type="email" id="email" name="email" class="login-input" required>
-        <label class="login-label" for="physical-address">Physical Address</label>
-        <input type="text" id="physical-address" name="physical-address" class="login-input" required>
         <label class="login-label" for="password">Password</label>
         <input type="password" id="password" name="password" class="login-input login-input-last" required>
-        <button class="login-submit" type="submit">Sign up</button>
+        <button class="login-submit" type="submit">Login</button>
       </form>
-      <p class="sign-up-text">Have an Account? <a href="https://www.google.com" class="sign-up-link">Sign in</a></p>
+      <p class="sign-up-text">Don't have an account? <a href="https://www.google.com" class="sign-up-link">Sign up</a></p>
     </div>
   </section>
   <footer>

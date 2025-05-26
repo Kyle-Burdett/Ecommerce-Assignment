@@ -1,3 +1,64 @@
+<?php
+session_start();
+$errors = array('email-address' => '', 'password' => '');
+
+$email = $password = '';
+
+$dbError = "";
+
+if ($_SERVER['REQUEST_METHOD'] == "POST") {
+
+  $email = trimInput($_POST['email']);
+  $password = trimInput($_POST['password']);
+
+  if (empty($email)) {
+    $errors['email-address'] = "An email is required.";
+  } else {
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+      $errors['email-address'] = "Invalid email address.";
+    } else {
+      $errors['email-address'] = "";
+    }
+  }
+
+  if (empty($password)) {
+    $errors['password'] = "A password is required.";
+  }
+
+  if (!array_filter($errors)) {
+
+    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+    $link = mysqli_connect("localhost", "root", "", "c2c_db");
+
+    if ($link === false) {
+      die("Error: Failed to connect. " . mysqli_connect_error());
+    }
+    $sqlPrep = mysqli_prepare($link, "INSERT INTO buyers (first_name, last_name, email_address, physical_address, buyer_password) VALUES (?, ?, ?, ?, ?)");
+    if ($sqlPrep) {
+      mysqli_stmt_bind_param($sqlPrep, "sssss", $firstName, $lastName, $email, $physicalAddress, $passwordHash);
+      mysqli_stmt_execute($sqlPrep);
+      mysqli_stmt_close($sqlPrep);
+    } else {
+      $dbError = "Something went wrong Please try again later.";
+    }
+
+    $userId =  mysqli_insert_id($link);
+    $_SESSION['user_id'] = $userId;
+
+    mysqli_close($link);
+
+    header('Location: homepage.php');
+    exit();
+  }
+}
+
+function trimInput($data)
+{
+  $data = trim($data);
+  return $data;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -17,111 +78,6 @@
   <title>Login Page</title>
 </head>
 
-<?php
-
-  $nameRegex = '/^[a-zA-Z\s]+$/';
-  $errors = array('first-name'=>'', 'last-name'=>'', 'email'=>'');
-
-  $firstName = $lastName = $email = '';
-
-  if ($_SERVER['REQUEST_METHOD'] == "POST") {
-
-    $firstName = trimInput($_POST['first-name']);
-    $lastName = trimInput($_POST['last-name']);
-    $email = trimInput($_POST['email']);
-
-    if (empty($firstName)) {
-      $errors['first-name'] = "A first name is required.";
-    } else {
-      if (!preg_match($nameRegex, $firstName)) {
-        $errors['first-name'] = "Name should have only upper and lower case characters(A-Z, a-z).";
-      } else {
-        $errors['first-name'] = "";
-      }
-    }
-
-    if (empty($lastName)) {
-      $errors['last-name'] = "A last name is required.";
-    } else {
-      if (!preg_match($nameRegex, $lastName)) {
-        $errors['last-name'] = "Name should have only upper and lower case characters(A-Z, a-z).";
-      } else {
-        $errors['last-name'] = "";
-      }
-    }
-
-    if (empty($email)) {
-      $errors['email'] = "An email is required.";
-    } else {
-      if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors['email'] = "Invalid email.";
-      } else {
-        $errors['email'] = "";
-      }
-    }
-
-    if (isset($_POST['first-game'])) {
-      $firstSouls = $_POST['first-game'];
-    } else {
-      $firstSouls = "";
-    }
-
-    if (isset($_POST['favourite-game'])) {
-      $favSouls = $_POST['favourite-game'];
-    } else {
-      $favSouls = "";
-    }
-
-    if (isset($_POST['hardest-boss'])) {
-      $hardestBoss = $_POST['hardest-boss'];
-    } else {
-      $hardestBoss = "";
-    }
-
-    if (isset($_POST['shield'])) {
-      $useShieldText = $_POST['shield'];
-      if ($useShieldText == "1") {
-        $useShield = 1;
-      } else {
-        $useShield = 0;
-      }
-    } else {
-      $useShield = 0;
-    }
-
-    if (isset($_POST['favourite-boss'])) {
-      $favBoss = $_POST['favourite-boss'];
-    } else {
-      $favBoss = "";
-    }
-
-    if (!array_filter($errors)) {
-
-      $link = mysqli_connect("localhost", "root", "", "darksoulsdb");
-
-      if ($link === false) {
-        die("Error: Failed to connect. ".mysqli_connect_error());
-      }
-      $sqlPrep = mysqli_prepare($link, "INSERT INTO soulanswers (firstName, lastName, email, firstSouls, favSouls, hardestBoss, shield, bestBoss) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-      if ($sqlPrep) {
-        mysqli_stmt_bind_param($sqlPrep, "ssssssis", $firstName, $lastName, $email, $firstSouls, $favSouls, $hardestBoss, $useShield, $favBoss);
-        mysqli_stmt_execute($sqlPrep);
-        mysqli_stmt_close($sqlPrep);
-      }
-
-      mysqli_close($link);
-
-      header('Location: thank-you.php');
-    }
-
-  }
-
-  function trimInput($data) {
-    $data = trim($data);
-    return $data;
-  }
-?>
-
 <body>
   <header class="header">
     <div class="logo-icons-bar">
@@ -136,27 +92,7 @@
         </a>
       </div>
     </div>
-    <div class="search-filters-bar">
-      <div class="category-filter-container">
-        <select title="category-filter" name="category-filter" id="category-filter" class="category-filter">
-          <option value="all">All</option>
-          <option value="computers">Computers</option>
-          <option value="homemade">Homemade</option>
-          <option value="tech">Tech</option>
-          <option value="furniture">Furniture</option>
-          <option value="decor">Decor</option>
-          <option value="books">Books</option>
-        </select>
-      </div>
-      <form class="search-form">
-        <div class="search-container">
-          <label class="search-label" for="search">Search</label>
-          <input type="text" name="search" id="search" class="search-input">
-          <button class="search-button" type="submit"><img src="../icons/magnifying-glass.svg"
-              alt="Orders Icon"></button>
-        </div>
-      </form>
-    </div>
+    
   </header>
   <section class="login-section">
     <div class="login-block">
@@ -168,7 +104,7 @@
         <input type="password" id="password" name="password" class="login-input login-input-last" required>
         <button class="login-submit" type="submit">Login</button>
       </form>
-      <p class="sign-up-text">Don't have an account? <a href="https://www.google.com" class="sign-up-link">Sign up</a></p>
+      <p class="sign-up-text">Don't have an account? <a href="create_account.php" class="sign-up-link">Sign up</a></p>
     </div>
   </section>
   <footer>

@@ -59,6 +59,11 @@ a {
   color: inherit;
 }
 
+.error-text {
+  color: rgb(182, 0, 0);
+  font-size: 14px;
+}
+
 button {
   margin-top: 16px;
   border: none;

@@ -1,6 +1,13 @@
 <?php
 session_start();
-$errors = array('email-address' => '', 'password' => '');
+
+if (isset($_SESSION['user_id'])) {
+  header('Location: homepage.php');
+  exit();
+}
+
+$errors = array('sign_in' => '');
+$loginErrorMessage = "Incorrect Email or Password";
 
 $email = $password = '';
 
@@ -11,52 +18,49 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
   $email = trimInput($_POST['email']);
   $password = trimInput($_POST['password']);
 
-  if (empty($email)) {
-    $errors['email-address'] = "An email is required.";
-  } else {
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-      $errors['email-address'] = "Invalid email address.";
-    } else {
-      $errors['email-address'] = "";
-    }
+  $link = mysqli_connect("localhost", "root", "", "c2c_db");
+  if ($link === false) {
+    die("Error: Failed to connect. " . mysqli_connect_error());
   }
 
-  if (empty($password)) {
-    $errors['password'] = "A password is required.";
+  $emailSqlPrep = mysqli_prepare($link, "SELECT * FROM buyers WHERE email_address = ?");
+  if ($emailSqlPrep) {
+    mysqli_stmt_bind_param($emailSqlPrep, "s", $email);
+    mysqli_stmt_execute($emailSqlPrep);
+    $result = mysqli_stmt_get_result($emailSqlPrep);
+    $row = mysqli_fetch_assoc($result);
+
+    if ($row) {
+      $userPassword = $row['buyer_password'];
+
+      if (password_verify($password, $userPassword)) {
+        $userId = $row['buyer_id'];
+        $_SESSION['user_id'] = $userId;
+        $errors['sign_in'] = "";
+      } else {
+        $errors['sign_in'] = $loginErrorMessage;
+      }
+    } else {
+      $errors['sign_in'] = $loginErrorMessage;
+    }
+
+    mysqli_stmt_close($emailSqlPrep);
   }
+
+  mysqli_close($link);
 
   if (!array_filter($errors)) {
-
-    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-    $link = mysqli_connect("localhost", "root", "", "c2c_db");
-
-    if ($link === false) {
-      die("Error: Failed to connect. " . mysqli_connect_error());
-    }
-    $sqlPrep = mysqli_prepare($link, "INSERT INTO buyers (first_name, last_name, email_address, physical_address, buyer_password) VALUES (?, ?, ?, ?, ?)");
-    if ($sqlPrep) {
-      mysqli_stmt_bind_param($sqlPrep, "sssss", $firstName, $lastName, $email, $physicalAddress, $passwordHash);
-      mysqli_stmt_execute($sqlPrep);
-      mysqli_stmt_close($sqlPrep);
-    } else {
-      $dbError = "Something went wrong Please try again later.";
-    }
-
-    $userId =  mysqli_insert_id($link);
-    $_SESSION['user_id'] = $userId;
-
-    mysqli_close($link);
-
     header('Location: homepage.php');
     exit();
   }
+
 }
 
-function trimInput($data)
-{
+function trimInput($data) {
   $data = trim($data);
   return $data;
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -97,11 +101,12 @@ function trimInput($data)
   <section class="login-section">
     <div class="login-block">
       <h2>Login</h2>
-      <form class="login-form">
+      <form class="login-form" action="login.php" method="post">
         <label class="login-label" for="email">Email Address</label>
-        <input type="email" id="email" name="email" class="login-input" required>
+        <input type="email" id="email" name="email" class="login-input" required value="<?php echo htmlspecialchars($email); ?>">
         <label class="login-label" for="password">Password</label>
         <input type="password" id="password" name="password" class="login-input login-input-last" required>
+        <p class="error-text"><?php echo $errors['sign_in'] ?></p>
         <button class="login-submit" type="submit">Login</button>
       </form>
       <p class="sign-up-text">Don't have an account? <a href="create_account.php" class="sign-up-link">Sign up</a></p>

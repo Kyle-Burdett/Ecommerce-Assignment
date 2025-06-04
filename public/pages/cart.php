@@ -3,6 +3,9 @@ session_start();
 if (!isset($_SESSION['user_id'])) {
   header('Location: login.php');
 }
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -14,12 +17,13 @@ if (!isset($_SESSION['user_id'])) {
   <link rel="stylesheet" href="../styling/main.css">
   <link rel="stylesheet" href="../styling/header.css">
   <link rel="stylesheet" href="../styling/footer.css">
+  <link rel="stylesheet" href="../styling/cart.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Sora:wght@100..800&display=swap"
     rel="stylesheet">
-  <title>C2C Homepage</title>
+  <title>Shopping Cart</title>
 </head>
 
 <body>
@@ -60,20 +64,27 @@ if (!isset($_SESSION['user_id'])) {
   </header>
   <section class="cart-section">
     <h1>Shopping Cart</h1>
-    <div class="cart-items-container">
-      <div class="product-item">
-        <img class="product-image" src="../images/product-placeholder.jpg" alt="Product Image">
-        <div class="text-container">
-          <a href="https://www.google.com" class="product-link"><p class="product-name">Gaming Laptop 1</p></a>
-          <p class="product-price">R 19,999</p>
-          <p class="product-description">Description. This is the best laptop you could ever buy. So by now today. Lorem ipsum dolor ipsum...</p>
-          <p class="product-seller">Seller: <a class="seller-name" href="https://www.google.com">John Smith</a></p>
+    <div class="cart-container">
+      <div class="cart-items-container">
+        <div class="cart-items-header">
+          <div></div>
+          <p class="cart-item-header">Product Name</p>
+          <p class="cart-item-header">Quantity</p>
+          <p class="cart-item-header price-header">Price</p>
+          <p class="cart-item-header"></p>
+        </div>
+        <div class="product-item">
+          <img class="product-image" src="../images/product-placeholder.jpg" alt="Product Image">
+          <p class="product-name grid-item-text">Gaming Laptop 1</p>
+          <p class="quantity grid-item-text">1</p>
+          <p class="product-price grid-item-text">R 19,999</p>
+          <div class="remove-button grid-item-text"><img src="../icons/trash-can.svg" alt="Remove"></div>
         </div>
       </div>
-    </div>
-    <div class="summary-checkout-container">
-      <h3 class="total-text">SubTotal: R19,999</h3>
-      <h3 class="total-price"></h3>
+      <div class="summary-checkout-container">
+        <h5 class="total-text">SubTotal: R19,999</h5>
+        <button class="checkout-button">Checkout</button>
+      </div>
     </div>
   </section>
   <footer>
@@ -110,7 +121,7 @@ if (!isset($_SESSION['user_id'])) {
       </div>
     </div>
     <div class="notice-section">
-      <p>Note that this is a protoype site meant for assessment purposes. This is not a real C2C site and should not be
+      <p>This is a protoype site meant for assessment purposes. This is not an official C2C site and should not be
         used for any real purchases or transactions.</p>
     </div>
   </footer>

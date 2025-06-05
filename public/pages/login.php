@@ -3,11 +3,11 @@ session_start();
 
 if (isset($_SESSION['user_id'])) {
   header('Location: homepage.php');
-  exit();
+  exit;
 }
 
 $errors = array('sign_in' => '');
-$loginErrorMessage = "Incorrect Email or Password";
+$loginErrorMessage = "Invalid Email or Password";
 
 $email = $password = '';
 
@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     die("Error: Failed to connect. " . mysqli_connect_error());
   }
 
-  $emailSqlPrep = mysqli_prepare($link, "SELECT * FROM buyers WHERE email_address = ?");
+  $emailSqlPrep = mysqli_prepare($link, "SELECT * FROM users WHERE email_address = ?");
   if ($emailSqlPrep) {
     mysqli_stmt_bind_param($emailSqlPrep, "s", $email);
     mysqli_stmt_execute($emailSqlPrep);
@@ -31,10 +31,10 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $row = mysqli_fetch_assoc($result);
 
     if ($row) {
-      $userPassword = $row['buyer_password'];
+      $userPassword = $row['user_password'];
 
       if (password_verify($password, $userPassword)) {
-        $userId = $row['buyer_id'];
+        $userId = $row['user_id'];
         $_SESSION['user_id'] = $userId;
         $errors['sign_in'] = "";
       } else {

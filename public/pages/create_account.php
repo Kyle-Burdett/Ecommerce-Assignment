@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     if ($link === false) {
       die("Error: Failed to connect. " . mysqli_connect_error());
     }
-    $sqlPrep = mysqli_prepare($link, "INSERT INTO buyers (first_name, last_name, email_address, physical_address, buyer_password) VALUES (?, ?, ?, ?, ?)");
+    $sqlPrep = mysqli_prepare($link, "INSERT INTO users (first_name, last_name, email_address, physical_address, user_password) VALUES (?, ?, ?, ?, ?)");
     if ($sqlPrep) {
       mysqli_stmt_bind_param($sqlPrep, "sssss", $firstName, $lastName, $email, $physicalAddress, $passwordHash);
       mysqli_stmt_execute($sqlPrep);

@@ -1,0 +1,13 @@
+.page-not-found-section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 400px;
+      padding: 64px 8px;
+    }
+
+    @media only screen and (max-width: 767px) {
+      h1 {
+        font-size: 28px;
+      }
+    }

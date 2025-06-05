@@ -1,33 +1,26 @@
-<!-- <?php 
+<?php 
 
-  $name = $description = '';
-  $price = 0.00;
-  $inventory = 0;
+session_start();
+if (!isset($_SESSION['user_id'])) {
+  header('Location: login.php');
+  exit;
+}
 
-  if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $name = $_POST['product-name'];
-    $description = $_POST['product-description'];
-    $price = floatval($_POST['product-price']);
-    $inventory = intval($_POST['product-inventory']);
+$userId = intval($_SESSION['user_id']);
 
-    $link = mysqli_connect("localhost", "root", "", "inventory_practice");
+$link = mysqli_connect("localhost", "root", "", "c2c_db");
 
-    if ($link === false) {
-      die("Could not connect");
-    }
+if ($link === false) {
+  die("Could not connect to server");
+}
+
+$sqlPrep = mysqli_prepare($link, "SELECT  product_id, product_name, price, category, inventory FROM products WHERE user_id = ?");
+mysqli_stmt_bind_param($sqlPrep, 'i', $userId);
+mysqli_execute($sqlPrep);
+mysqli_stmt_bind_result($sqlPrep, $productId, $name, $price, $category, $inventory);
 
 
-    $sqlPrep = mysqli_prepare($link, "INSERT INTO products (product_name, product_description, price, stock) VALUES (?, ?, ?, ?)");
-    if ($sqlPrep) {
-      mysqli_stmt_bind_param($sqlPrep, "ssdi", $name, $description, $price, $inventory);
-      mysqli_execute($sqlPrep);
-      mysqli_stmt_close($sqlPrep);
-    }
-    mysqli_close($link);
-    header("Location: product-list.php");
-  }
-
-?> -->
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -36,7 +29,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../styling/main.css">
-  <link rel="stylesheet" href="../styling/add-product.css">
+  <link rel="stylesheet" href="../styling/my-products.css">
   <link rel="stylesheet" href="../styling/header.css">
   <link rel="stylesheet" href="../styling/footer.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,7 +37,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Sora:wght@100..800&display=swap"
     rel="stylesheet">
-  <title>Add Product Screen</title>
+  <title>Product List</title>
 </head>
 
 <body>
@@ -83,45 +76,49 @@
       </form>
     </div>
   </header>
-  <section class="add-product-section">
-    <div class="heading-back-container"><a class="back-link"><img src="../icons/arrow-left.svg" alt="Back arrow">
-        <p>Back</p>
-      </a>
-      <h1>Product Details</h1>
+  <section class="my-products-section">
+    <div class="heading-container">
+      <div class="heading-back-container"><a class="back-link" onclick="history.back()"><img src="../icons/arrow-left.svg" alt="Back arrow"><p>Back</p></a><h1>My Products</h1></div>
+      <a class="add-product-button" href="add-product.php">Add</a>
     </div>
-    <form class="add-product-form" method="post" action="add-product.php">
-      <label class="label" for="product-image">Product Image</label>
-      <img class="image-preview" src="../images/product-placeholder.jpg" alt="Image Preview">
-      <input class="image-input" type="file" id="product-image" name="product-image" alt="Product Image" required>
-      <label class="label" for="product-name">Product Name</label>
-      <input class="input text-input" type="text" id="product-name" name="product-name" required>
-      <label class="label" for="product-description">Description</label>
-      <textarea rows="10" cols="50" id="product-description" name="product-description"></textarea>
-      <label class="label" for="product-category">Product category</label>
-      <select class="input" title="product-category" id="product-category" name="product-category">
-        <option value="">Uncategorized</option>
-        <option value="computers">Computers</option>
-        <option value="homemade">Homemade</option>
-        <option value="tech">Tech</option>
-        <option value="furniture">Furniture</option>
-        <option value="decor">Decor</option>
-        <option value="books">Books</option>
-      </select>
-      <div class="price-inventory-wrapper">
-        <div>
-          <label class="label" for="product-price">Price</label>
-          <input class="input text-input" type="number" id="product-price" name="product-price" step="0.01" required>
+    
+    <div class="products-container">
+        <div class="products-header">
+          <div></div>
+          <p class="product-header">Product Name</p>
+          <p class="product-header">In Stock</p>
+          <p class="product-header price-header">Price</p>
         </div>
-        <div>
-          <label class="label" for="product-inventory">Inventory</label>
-          <input class="input text-input" type="number" id="product-inventory" name="product-inventory" required>
-        </div>
+        <?php 
+
+        $hasProducts = false;
+        
+        while (mysqli_stmt_fetch($sqlPrep)) {
+          if (!$hasProducts) {
+            $hasProducts = true;
+          }
+          
+          $priceFormatted = htmlspecialchars(number_format($price, 2, ".", ","));
+          $nameFormatted = htmlspecialchars($name);
+          $inventoryFormatted = htmlspecialchars($inventory);
+          $safeProductId = urlencode(intval($productId));
+          $productItem = "<a class=\"product-item-link\" href=\"add-product.php?product_id=$safeProductId\"><div class=\"product-item\">
+          <img class=\"product-image\" src=\"../images/product-placeholder.jpg\" alt=\"Product Image\">
+          <p class=\"product-name grid-item-text\">$nameFormatted</p>
+          <p class=\"quantity grid-item-text\">$inventoryFormatted</p>
+          <p class=\"product-price grid-item-text\">R $priceFormatted</p>
+        </div></a>";
+        echo $productItem;
+        }
+
+        if (!$hasProducts) {
+          echo "<div class=\"no-products-message\"><p>You have no products listed</p></div>";
+        }
+
+        mysqli_stmt_close($sqlPrep);
+        mysqli_close($link);
+        ?>
       </div>
-      <div class="button-wrapper">
-        <button class="submit" type="button" id="clear-button">Cancel</button>
-        <input class="submit" type="submit">
-      </div>
-    </form>
   </section>
   <footer>
     <div class="links-section">
@@ -142,7 +139,7 @@
             <p class="links-column-heading">Profile Options</p>
             <ul>
               <li><a href="https://www.google.com">Account</a></li>
-              <li><a href="https://www.google.com">Orders</a></li>
+              <li><a href="https://www.google.com">My Orders</a></li>
               <li><a href="https://www.google.com">Seller Info</a></li>
             </ul>
           </div>

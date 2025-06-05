@@ -1,18 +1,9 @@
 <!-- <?php 
-
-$link = mysqli_connect("localhost", "root", "", "inventory_practice");
-
-if ($link === false) {
-  die("Could not connect to server");
+session_start();
+if (!isset($_SESSION['user_id'])) {
+  header('Location: login.php');
 }
-
-$sqlPrep = mysqli_prepare($link, "SELECT product_name, product_description, price, stock FROM products");
-mysqli_execute($sqlPrep);
-mysqli_stmt_bind_result($sqlPrep, $name, $description, $price, $stock);
-
-
 ?> -->
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -21,15 +12,15 @@ mysqli_stmt_bind_result($sqlPrep, $name, $description, $price, $stock);
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../styling/main.css">
-  <link rel="stylesheet" href="../styling/my-products.css">
   <link rel="stylesheet" href="../styling/header.css">
   <link rel="stylesheet" href="../styling/footer.css">
+  <link rel="stylesheet" href="../styling/page-not-found.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Sora:wght@100..800&display=swap"
     rel="stylesheet">
-  <title>Product List</title>
+  <title>C2C Homepage</title>
 </head>
 
 <body>
@@ -68,28 +59,8 @@ mysqli_stmt_bind_result($sqlPrep, $name, $description, $price, $stock);
       </form>
     </div>
   </header>
-  <section class="my-products-section">
-    <div class="heading-back-container"><a class="back-link"><img src="../icons/arrow-left.svg" alt="Back arrow"><p>Back</p></a><h1>My Products</h1></div>
-    <div class="products-container">
-        <div class="products-header">
-          <div></div>
-          <p class="product-header">Product Name</p>
-          <p class="product-header">In Stock</p>
-          <p class="product-header price-header">Price</p>
-        </div>
-        <div class="product-item">
-          <img class="product-image" src="../images/product-placeholder.jpg" alt="Product Image">
-          <p class="product-name grid-item-text">Gaming Laptop 1</p>
-          <p class="quantity grid-item-text">1</p>
-          <p class="product-price grid-item-text">R 19,999</p>
-        </div>
-        <div class="product-item">
-          <img class="product-image" src="../images/product-placeholder.jpg" alt="Product Image">
-          <p class="product-name grid-item-text">Gaming Laptop 1 fefeij fieja ofj ieoa;j fije; jife</p>
-          <p class="quantity grid-item-text">1</p>
-          <p class="product-price grid-item-text">R 19,999</p>
-        </div>
-      </div>
+  <section class="page-not-found-section">
+    <h1>404 - Page not Found</h1>
   </section>
   <footer>
     <div class="links-section">
@@ -110,7 +81,7 @@ mysqli_stmt_bind_result($sqlPrep, $name, $description, $price, $stock);
             <p class="links-column-heading">Profile Options</p>
             <ul>
               <li><a href="https://www.google.com">Account</a></li>
-              <li><a href="https://www.google.com">My Orders</a></li>
+              <li><a href="https://www.google.com">Orders</a></li>
               <li><a href="https://www.google.com">Seller Info</a></li>
             </ul>
           </div>
@@ -132,17 +103,3 @@ mysqli_stmt_bind_result($sqlPrep, $name, $description, $price, $stock);
 </body>
 
 </html>
-
-<!-- <?php while (mysqli_stmt_fetch($sqlPrep)) {
-        $productItem = "<div class=\"product-item\">
-        <h3 class=\"product-name\">$name</h3>
-        <p class=\"product-description\">$description</p>
-        <p class=\"product-price\">$price</p>
-        <p>$stock</p>
-      </div>";
-        echo $productItem;
-      }
-
-      mysqli_stmt_close($sqlPrep);
-      mysqli_close($link);
-      ?> -->

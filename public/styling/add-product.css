@@ -49,8 +49,8 @@ h1 {
 }
 
 .image-preview {
-  width: 64px;
-  height: 64px;
+  width: 256px;
+  height: 256px;
   object-fit: contain;
 }
 
@@ -69,7 +69,6 @@ h1 {
 }
 
 #product-description {
-  max-width: 700px;
   margin: 8px 0 16px 0;
   border-radius: 8px;
   border: 1px solid #2E2E2E;
@@ -83,21 +82,13 @@ h1 {
   max-width: 300px;
 }
 
-.input {
-  max-width: 500px;
-}
-
 .button-wrapper {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-#clear-button {
+#cancel-button {
   background-color: var(--primary-grey-light);
-}
-
-#clear-button:hover {
-  background-color: rgb(201, 33, 33);
 }
 

@@ -48,13 +48,7 @@ header {
 }
 
 .search-filters-bar {
-  height: 64px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 64px;
-  padding: 8px 64px;
-  background-color: var(--primary-grey);
+  width: 100%;
 }
 
 .category-filter-container {
@@ -79,6 +73,16 @@ header {
 }
 
 .search-form {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#search-form {
   width: 100%;
   max-width: none;
   height: 100%;

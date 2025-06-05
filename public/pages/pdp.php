@@ -1,3 +1,49 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+  header('Location: login.php');
+}
+
+$userId = intval($_SESSION['user_id']);
+$searchCategory = "all";
+
+if (isset($_GET['product_id'])) {
+  $productId = intval($_GET['product_id']);
+  $link = mysqli_connect("localhost", "root", "", "c2c_db");
+
+  if ($link === false) {
+    die("Could not connect");
+  }
+
+  $sqlPrep = mysqli_prepare($link, "SELECT p.product_id, p.product_name, p.price, p.product_description, p.category, p.user_id, p.inventory, u.first_name, u.last_name FROM products p JOIN users u ON p.user_id = u.user_id WHERE product_id = ?");
+  if ($sqlPrep) {
+    mysqli_stmt_bind_param($sqlPrep, 'i', $productId);
+    mysqli_execute($sqlPrep);
+    mysqli_stmt_bind_result($sqlPrep, $fetchedId, $fetchedName, $fetchedPrice, $fetchedDescription, $fetchedCategory, $fetchedUserId, $fetchedInventory, $fetchedFirstName, $fetchedLastName);
+
+    if (mysqli_stmt_fetch($sqlPrep)) {
+      $productId = $fetchedId;
+      $name = $fetchedName;
+      $price = $fetchedPrice;
+      $description = $fetchedDescription;
+      $category = $fetchedCategory;
+      $productSellerId = $fetchedUserId;
+      $inventory = $fetchedInventory;
+      $firstName = $fetchedFirstName;
+      $lastName = $fetchedLastName;
+    } else {
+      header('Location: page-not-found.php');
+    }
+
+    mysqli_stmt_close($sqlPrep);
+  }
+  mysqli_close($link);
+} else {
+  header('Location: page-not-found.php');
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -32,23 +78,26 @@
       </div>
     </div>
     <div class="search-filters-bar">
-      <div class="category-filter-container">
-        <select title="category-filter" name="category-filter" id="category-filter" class="category-filter">
-          <option value="all">All</option>
-          <option value="computers">Computers</option>
-          <option value="homemade">Homemade</option>
-          <option value="tech">Tech</option>
-          <option value="furniture">Furniture</option>
-          <option value="decor">Decor</option>
-          <option value="books">Books</option>
-        </select>
-      </div>
-      <form class="search-form">
-        <div class="search-container">
-          <label class="search-label" for="search">Search</label>
-          <input type="text" name="search" id="search" class="search-input">
-          <button class="search-button" type="submit"><img src="../icons/magnifying-glass.svg"
-              alt="Orders Icon"></button>
+      <form id="search-form" action="plp.php" method="get">
+        <div class="category-filter-container">
+          <select title="category-filter" name="category" id="category" class="category-filter">
+            <option value="all" <?php echo ($searchCategory === 'all') ? 'selected' : '' ?>>All</option>
+            <option value="computers" <?php echo ($searchCategory === 'computers') ? 'selected' : '' ?>>Computers</option>
+            <option value="homemade" <?php echo ($searchCategory === 'homemade') ? 'selected' : '' ?>>Homemade</option>
+            <option value="tech" <?php echo ($searchCategory === 'tech') ? 'selected' : '' ?>>Tech</option>
+            <option value="furniture" <?php echo ($searchCategory === 'furniture') ? 'selected' : '' ?>>Furniture</option>
+            <option value="decor" <?php echo ($searchCategory === 'decor') ? 'selected' : '' ?>>Decor</option>
+            <option value="books" <?php echo ($searchCategory === 'books') ? 'selected' : '' ?>>Books</option>
+            <option value="uncategorized" <?php echo ($searchCategory === 'uncategorized') ? 'selected' : '' ?>>Uncategorized</option>
+          </select>
+        </div>
+        <div class="search-form">
+          <div class="search-container">
+            <label class="search-label" for="search">Search</label>
+            <input type="text" name="search" id="search" class="search-input" value="<?php echo htmlspecialchars($search) ?>">
+            <button class="search-button" type="submit"><img src="../icons/magnifying-glass.svg"
+                alt="Orders Icon"></button>
+          </div>
         </div>
       </form>
     </div>
@@ -66,18 +115,14 @@
         </div>
       </div>
       <div class="info-container">
-        <h1 class="product-name">GTX 2000</h1>
-        <h3 class="product-price">R 19 999</h3>
-        <p class="product-description">Description. Lorem ipsum dolor jfiejfeijfeaijig igaejgi ejeiog ejo ajfie jiajfje
-          ijfe ijgeigheiheatheu oajfei jfeijfghe4uieij ifj jfieji ajfoefja ;fjeiaj ;fiejfeia; jfiejf;eaf jfiefja;
-          jfeifjefheuith3ewuajf jeifja;jferifjeadfjehe fjgfeijafifjeeh jafefeasdfkjeifj ea; jfjfieja;fje kfje jfj
-          eafjeasjf ekjei jj</p>
+        <p class="category-text"><?php echo htmlspecialchars($category) ?></p>
+        <h1 class="product-name"><?php echo htmlspecialchars($name) ?></h1>
+        <h3 class="product-price">R <?php echo htmlspecialchars(number_format($price, 2, ".", ",")) ?></h3>
+        <p class="product-description"><?php echo htmlspecialchars($description) ?></p>
         <button class="buy-button">Add to Cart</button>
-        <h3 class="info-heading">Receiving information</h3>
-        <p class="info-text">Collect at shop at the given address: 323 Gigantic Street East, Preyland, Ferelden.</p>
         <h3 class="info-heading">Seller</h3>
         <div class="seller-container">
-          <h6 class="seller-name">James Smith</h6>
+          <h6 class="seller-name"><?php echo htmlspecialchars($firstName) . " " . htmlspecialchars($lastName) ?></h6>
           <p class="info-text">Hey! I’m James, trying to sell second hand equipment. Check out my details.</p>
         </div>
       </div>

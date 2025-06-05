@@ -1,3 +1,57 @@
+<?php
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+session_start();
+if (!isset($_SESSION['user_id'])) {
+  header('Location: login.php');
+  exit;
+}
+
+$userId = intval($_SESSION['user_id']);
+$search = '';
+$products = [];
+$searchCategory = "all";
+
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+  if (isset($_GET['search'])) {
+    $search = trim($_GET['search']);
+  }
+
+  if (isset($_GET['category'])) {
+    $searchCategory = trim($_GET['category']);
+  }
+
+  $sqlSearch = '%' . $search . '%';
+
+  $link = mysqli_connect("localhost", "root", "", "c2c_db");
+
+  if ($link === false) {
+    die("Could not connect to server");
+  }
+
+  if ($searchCategory == "all") {
+    $sqlPrep = mysqli_prepare($link, "SELECT * FROM products WHERE product_name like ? OR product_description LIKE ? OR category LIKE ?");
+    mysqli_stmt_bind_param($sqlPrep, 'sss', $sqlSearch, $sqlSearch, $sqlSearch);
+  } else {
+    $sqlPrep = mysqli_prepare($link, "SELECT * FROM products WHERE product_name like ? OR product_description LIKE ? AND category = ?");
+    mysqli_stmt_bind_param($sqlPrep, 'sss', $sqlSearch, $sqlSearch, $searchCategory);
+  }
+
+  mysqli_execute($sqlPrep);
+  $result = mysqli_stmt_get_result($sqlPrep);
+
+  while ($row = mysqli_fetch_assoc($result)) {
+    $products[] = $row;
+  }
+
+  mysqli_stmt_close($sqlPrep);
+  mysqli_close($link);
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,6 +62,7 @@
   <link rel="stylesheet" href="../styling/header.css">
   <link rel="stylesheet" href="../styling/footer.css">
   <link rel="stylesheet" href="../styling/plp.css">
+  
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,76 +87,51 @@
       </div>
     </div>
     <div class="search-filters-bar">
-      <div class="category-filter-container">
-        <select title="category-filter" name="category-filter" id="category-filter" class="category-filter">
-          <option value="all">All</option>
-          <option value="computers">Computers</option>
-          <option value="homemade">Homemade</option>
-          <option value="tech">Tech</option>
-          <option value="furniture">Furniture</option>
-          <option value="decor">Decor</option>
-          <option value="books">Books</option>
-        </select>
-      </div>
-      <form class="search-form">
-        <div class="search-container">
-          <label class="search-label" for="search">Search</label>
-          <input type="text" name="search" id="search" class="search-input">
-          <button class="search-button" type="submit"><img src="../icons/magnifying-glass.svg"
-              alt="Orders Icon"></button>
+      <form id="search-form" action="plp.php" method="get">
+        <div class="category-filter-container">
+          <select title="category-filter" name="category" id="category" class="category-filter">
+            <option value="all" <?php echo ($searchCategory === 'all') ? 'selected' : '' ?>>All</option>
+            <option value="computers" <?php echo ($searchCategory === 'computers') ? 'selected' : '' ?>>Computers</option>
+            <option value="homemade" <?php echo ($searchCategory === 'homemade') ? 'selected' : '' ?>>Homemade</option>
+            <option value="tech" <?php echo ($searchCategory === 'tech') ? 'selected' : '' ?>>Tech</option>
+            <option value="furniture" <?php echo ($searchCategory === 'furniture') ? 'selected' : '' ?>>Furniture</option>
+            <option value="decor" <?php echo ($searchCategory === 'decor') ? 'selected' : '' ?>>Decor</option>
+            <option value="books" <?php echo ($searchCategory === 'books') ? 'selected' : '' ?>>Books</option>
+            <option value="uncategorized" <?php echo ($searchCategory === 'uncategorized') ? 'selected' : '' ?>>Uncategorized</option>
+          </select>
+        </div>
+        <div class="search-form">
+          <div class="search-container">
+            <label class="search-label" for="search">Search</label>
+            <input type="text" name="search" id="search" class="search-input" value="<?php echo htmlspecialchars($search) ?>">
+            <button class="search-button" type="submit"><img src="../icons/magnifying-glass.svg"
+                alt="Orders Icon"></button>
+          </div>
         </div>
       </form>
     </div>
   </header>
   <section class="plp-section">
-    <h5 class="search-results-text">50 Search Results</h5>
-    <div class="product-list-container">
-      <div class="product-item">
-        <img class="product-image" src="../images/product-placeholder.jpg" alt="Product Image">
-        <div class="text-container">
-          <a href="https://www.google.com" class="product-link"><p class="product-name">Gaming Laptop 1</p></a>
-          <p class="product-price">R 19,999</p>
-          <p class="product-description">Description. This is the best laptop you could ever buy. So by now today. Lorem ipsum dolor ipsum...</p>
-          <p class="product-seller">Seller: <a class="seller-name" href="https://www.google.com">John Smith</a></p>
-        </div>
+    <?php if (empty($products)): ?>
+      <h5 class="search-results-text">No Products Found</h5>
+    <?php else: ?>
+      <h5 class="search-results-text"><?php echo count($products) ?> Search Results</h5>
+      <div class="product-list-container">
+        <?php foreach ($products as $product): ?>
+          <div class="product-item">
+            <img class="product-image" src="../images/product-placeholder.jpg" alt="Product Image">
+            <div class="text-container">
+              <a href="<?php echo 'pdp.php?product_id=' . urlencode(intval($product['product_id'])) ?>" class="product-link">
+                <p class="product-name"><?php echo htmlspecialchars($product['product_name']) ?></p>
+              </a>
+              <p class="product-price"><?php echo htmlspecialchars(number_format($product['price'], 2, ".", ",")) ?></p>
+              <p class="product-description"><?php echo htmlspecialchars($product['product_description']) ?></p>
+              <p class="product-category"><?php echo htmlspecialchars($product['category']) ?></p>
+            </div>
+          </div>
+        <?php endforeach; ?>
       </div>
-      <div class="product-item">
-        <img class="product-image" src="../images/product-placeholder.jpg" alt="Product Image">
-        <div class="text-container">
-          <a href="https://www.google.com" class="product-link"><p class="product-name">Bloodborne PC</p></a>
-          <p class="product-price">R 1,200,000</p>
-          <p class="product-description">Description. What we will never have.</p>
-          <p class="product-seller">Seller: <a class="seller-name" href="https://www.google.com">Micahel Zaki</a></p>
-        </div>
-      </div>
-      <div class="product-item">
-        <img class="product-image" src="../images/product-placeholder.jpg" alt="Product Image">
-        <div class="text-container">
-          <a href="https://www.google.com" class="product-link"><p class="product-name">Shirt</p></a>
-          <p class="product-price">R 19,999</p>
-          <p class="product-description">Description. It’s incredibly comfortable.</p>
-          <p class="product-seller">Seller: <a class="seller-name" href="https://www.google.com">John Smith</a></p>
-        </div>
-      </div>
-      <div class="product-item">
-        <img class="product-image" src="../images/product-placeholder.jpg" alt="Product Image">
-        <div class="text-container">
-          <a href="https://www.google.com" class="product-link"><p class="product-name">Headset</p></a>
-          <p class="product-price">R 19,999</p>
-          <p class="product-description">Description. This is the best headset you could ever buy. So by now today. Lorem ipsum dolor ipsum. Seriously, it gives the best experience for everything...</p>
-          <p class="product-seller">Seller: <a class="seller-name" href="https://www.google.com">John Smith</a></p>
-        </div>
-      </div>
-      <div class="product-item">
-        <img class="product-image" src="../images/product-placeholder.jpg" alt="Product Image">
-        <div class="text-container">
-          <a href="https://www.google.com" class="product-link"><p class="product-name">Gaming Laptop 2</p></a>
-          <p class="product-price">R 25,000</p>
-          <p class="product-description">Description. This is the best laptop you could ever buy. Much better than Laptop 1 So by now today. Lorem ipsum dolor ipsum...</p>
-          <p class="product-seller">Seller: <a class="seller-name" href="https://www.google.com">John Smith</a></p>
-        </div>
-      </div>
-    </div>
+    <?php endif; ?>
   </section>
   <footer>
     <div class="links-section">

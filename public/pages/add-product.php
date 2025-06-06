@@ -15,11 +15,11 @@ if (isset($_GET['product_id'])) {
     die("Could not connect");
   }
 
-  $sqlPrep = mysqli_prepare($link, "SELECT product_id, product_name, price, product_description, category, user_id, inventory FROM products WHERE product_id = ?");
+  $sqlPrep = mysqli_prepare($link, "SELECT product_id, product_name, price, product_description, category, user_id, inventory, product_image FROM products WHERE product_id = ?");
   if ($sqlPrep) {
     mysqli_stmt_bind_param($sqlPrep, 'i', $productId);
     mysqli_execute($sqlPrep);
-    mysqli_stmt_bind_result($sqlPrep, $fetchedId, $fetchedName, $fetchedPrice, $fetchedDescription, $fetchedCategory, $fetchedUserId, $fetchedInventory);
+    mysqli_stmt_bind_result($sqlPrep, $fetchedId, $fetchedName, $fetchedPrice, $fetchedDescription, $fetchedCategory, $fetchedUserId, $fetchedInventory, $fetchedImage);
 
     if (mysqli_stmt_fetch($sqlPrep)) {
       $productId = $fetchedId;
@@ -29,11 +29,13 @@ if (isset($_GET['product_id'])) {
       $category = $fetchedCategory;
       $productSellerId = $fetchedUserId;
       $inventory = $fetchedInventory;
+      $productImage = $fetchedImage;
     } else {
       $productId = $productSellerId = -1;
       $name = $description = $category = '';
       $price = 0.00;
       $inventory = 0;
+      $productImage = '../images/product-placeholder.jpg';
     }
 
     mysqli_stmt_close($sqlPrep);
@@ -48,6 +50,7 @@ if (isset($_GET['product_id'])) {
   $name = $description = $category = '';
   $price = 0.00;
   $inventory = 0;
+  $productImage = '../images/product-placeholder.jpg';
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -98,6 +101,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   }
 
   if (!array_filter($errors)) {
+
+    $productImagePath = $productImage;
+
+    if (isset($_FILES['product-image']) && $_FILES['product-image']['error'] === UPLOAD_ERR_OK) {
+      $fileTmpPath = $_FILES['product-image']['tmp_name'];
+      $fileName = $_FILES['product-image']['name'];
+      $fileSize = $_FILES['product-image']['size'];
+      $fileType = $_FILES['product-image']['type'];
+      $fileNameCmps = explode(".", $fileName);
+      $fileExtension = strtolower(end($fileNameCmps));
+
+      $newFileName = time() . $fileName;
+
+      $allowedfileExtensions = array('jpg', 'gif', 'png', 'jpeg');
+
+      if (in_array($fileExtension, $allowedfileExtensions)) {
+        $uploadFileDir = '../uploads/products/';
+        $dest_path = $uploadFileDir . $newFileName;
+
+        if (move_uploaded_file($fileTmpPath, $dest_path)) {
+          $productImagePath = $dest_path;
+        } else {
+          echo 'Error moving uploaded file.';
+        }
+      } else {
+        echo 'Upload failed. Allowed types: ' . implode(',', $allowedfileExtensions);
+      }
+    }
+
     $link = mysqli_connect("localhost", "root", "", "c2c_db");
 
     if ($link === false) {
@@ -105,26 +137,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     if ($productId === -1) {
-      $sqlPrep = mysqli_prepare($link, "INSERT INTO products (product_name, price, product_description, category, user_id, inventory) VALUES (?, ?, ?, ?, ?, ?)");
+      $sqlPrep = mysqli_prepare($link, "INSERT INTO products (product_name, price, product_description, category, user_id, inventory, product_image) VALUES (?, ?, ?, ?, ?, ?, ?)");
       if ($sqlPrep) {
-        mysqli_stmt_bind_param($sqlPrep, "sdssii", $name, $price, $description, $category, $userId, $inventory);
+        mysqli_stmt_bind_param($sqlPrep, "sdssiis", $name, $price, $description, $category, $userId, $inventory, $productImagePath);
         if (mysqli_execute($sqlPrep)) {
           $productId = mysqli_insert_id($link);
         }
         mysqli_stmt_close($sqlPrep);
       }
     } else {
-      $sqlPrep = mysqli_prepare($link, "UPDATE products SET product_name = ?, price = ?, product_description = ?, category = ?, inventory =? WHERE product_id = ?");
+      $sqlPrep = mysqli_prepare($link, "UPDATE products SET product_name = ?, price = ?, product_description = ?, category = ?, inventory = ?, product_image = ? WHERE product_id = ?");
       if ($sqlPrep) {
-        mysqli_stmt_bind_param($sqlPrep, "sdssii", $name, $price, $description, $category, $inventory, $productId);
+        mysqli_stmt_bind_param($sqlPrep, "sdssisi", $name, $price, $description, $category, $inventory, $productImagePath, $productId);
         mysqli_execute($sqlPrep);
         mysqli_stmt_close($sqlPrep);
       }
     }
 
     mysqli_close($link);
-    header('Location: my-products.php');
-    exit;
+    
   }
 }
 
@@ -202,9 +233,9 @@ function trimInput($data)
     </div>
 
     <form class="add-product-form" method="post" action="add-product.php" enctype="multipart/form-data">
-      <!-- <label class="label" for="product-image">Product Image</label>
-      <img class="image-preview" src="../images/product-placeholder.jpg" alt="Image Preview">
-      <input class="image-input" type="file" id="product-image" name="product-image" alt="Product Image"> -->
+      <label class="label" for="product-image">Product Image</label>
+      <img class="image-preview" src="<?php echo $productImage ?>" alt="Image Preview">
+      <input class="image-input" type="file" id="product-image" name="product-image" alt="Product Image">
       <?php if ($productId !== -1): ?>
         <input type="hidden" name="product_id" value="<?php echo $productId; ?>">
       <?php endif; ?>

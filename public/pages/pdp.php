@@ -15,11 +15,11 @@ if (isset($_GET['product_id'])) {
     die("Could not connect");
   }
 
-  $sqlPrep = mysqli_prepare($link, "SELECT p.product_id, p.product_name, p.price, p.product_description, p.category, p.user_id, p.inventory, u.first_name, u.last_name FROM products p JOIN users u ON p.user_id = u.user_id WHERE product_id = ?");
+  $sqlPrep = mysqli_prepare($link, "SELECT p.product_id, p.product_name, p.price, p.product_description, p.category, p.user_id, p.inventory, p.product_image, u.first_name, u.last_name FROM products p JOIN users u ON p.user_id = u.user_id WHERE product_id = ?");
   if ($sqlPrep) {
     mysqli_stmt_bind_param($sqlPrep, 'i', $productId);
     mysqli_execute($sqlPrep);
-    mysqli_stmt_bind_result($sqlPrep, $fetchedId, $fetchedName, $fetchedPrice, $fetchedDescription, $fetchedCategory, $fetchedUserId, $fetchedInventory, $fetchedFirstName, $fetchedLastName);
+    mysqli_stmt_bind_result($sqlPrep, $fetchedId, $fetchedName, $fetchedPrice, $fetchedDescription, $fetchedCategory, $fetchedUserId, $fetchedInventory, $fetchedImage, $fetchedFirstName, $fetchedLastName);
 
     if (mysqli_stmt_fetch($sqlPrep)) {
       $productId = $fetchedId;
@@ -29,6 +29,7 @@ if (isset($_GET['product_id'])) {
       $category = $fetchedCategory;
       $productSellerId = $fetchedUserId;
       $inventory = $fetchedInventory;
+      $productImage = (!empty($fetchedImage)) ? htmlspecialchars($fetchedImage) : '../images/product-placeholder.jpg';;
       $firstName = $fetchedFirstName;
       $lastName = $fetchedLastName;
     } else {
@@ -105,21 +106,14 @@ if (isset($_GET['product_id'])) {
   <section class="pdp-section">
     <div class="product-container">
       <div class="images-container">
-        <img class="main-image" src="../images/product-placeholder.jpg" alt="product-main">
-        <div class="secondary-images-container">
-          <img class="secondary-image image-selected" src="../images/product-placeholder.jpg" alt="product-main">
-          <img class="secondary-image" src="../images/product-placeholder.jpg" alt="product-main">
-          <img class="secondary-image" src="../images/product-placeholder.jpg" alt="product-main">
-          <img class="secondary-image" src="../images/product-placeholder.jpg" alt="product-main">
-          <img class="secondary-image" src="../images/product-placeholder.jpg" alt="product-main">
-        </div>
+        <img class="main-image" src="<?php echo $productImage ?>" alt="product-main">
       </div>
       <div class="info-container">
         <p class="category-text"><?php echo htmlspecialchars($category) ?></p>
         <h1 class="product-name"><?php echo htmlspecialchars($name) ?></h1>
         <h3 class="product-price">R <?php echo htmlspecialchars(number_format($price, 2, ".", ",")) ?></h3>
         <p class="product-description"><?php echo htmlspecialchars($description) ?></p>
-        <button class="buy-button">Add to Cart</button>
+        <button class="buy-button"><?php echo ($userId == $productSellerId) ? 'See product' : 'Add to Cart' ?></button>
         <h3 class="info-heading">Seller</h3>
         <div class="seller-container">
           <h6 class="seller-name"><?php echo htmlspecialchars($firstName) . " " . htmlspecialchars($lastName) ?></h6>

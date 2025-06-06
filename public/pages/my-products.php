@@ -14,10 +14,10 @@ if ($link === false) {
   die("Could not connect to server");
 }
 
-$sqlPrep = mysqli_prepare($link, "SELECT  product_id, product_name, price, category, inventory FROM products WHERE user_id = ?");
+$sqlPrep = mysqli_prepare($link, "SELECT  product_id, product_name, price, category, inventory, product_image FROM products WHERE user_id = ?");
 mysqli_stmt_bind_param($sqlPrep, 'i', $userId);
 mysqli_execute($sqlPrep);
-mysqli_stmt_bind_result($sqlPrep, $productId, $name, $price, $category, $inventory);
+mysqli_stmt_bind_result($sqlPrep, $productId, $name, $price, $category, $inventory, $productImage);
 
 
 ?>
@@ -104,9 +104,14 @@ mysqli_stmt_bind_result($sqlPrep, $productId, $name, $price, $category, $invento
           $priceFormatted = htmlspecialchars(number_format($price, 2, ".", ","));
           $nameFormatted = htmlspecialchars($name);
           $inventoryFormatted = htmlspecialchars($inventory);
+          if (isset($productImage)) {
+            $imagePathFormatted = htmlspecialchars($productImage);
+          } else {
+            $imagePathFormatted = '../images/product-placeholder.jpg';
+          }
           $safeProductId = urlencode(intval($productId));
           $productItem = "<a class=\"product-item-link\" href=\"add-product.php?product_id=$safeProductId\"><div class=\"product-item\">
-          <img class=\"product-image\" src=\"../images/product-placeholder.jpg\" alt=\"Product Image\">
+          <img class=\"product-image\" src=\"$imagePathFormatted\" alt=\"Product Image\">
           <p class=\"product-name grid-item-text\">$nameFormatted</p>
           <p class=\"quantity grid-item-text\">$inventoryFormatted</p>
           <p class=\"product-price grid-item-text\">R $priceFormatted</p>

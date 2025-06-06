@@ -1,8 +1,5 @@
 <?php
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 session_start();
 if (!isset($_SESSION['user_id'])) {
   header('Location: login.php');
@@ -119,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
       <div class="product-list-container">
         <?php foreach ($products as $product): ?>
           <div class="product-item">
-            <img class="product-image" src="../images/product-placeholder.jpg" alt="Product Image">
+            <img class="product-image" src="<?php echo (isset($product['product_image'])) ? htmlspecialchars($product['product_image']) : '../images/product-placeholder.jpg' ?>" alt="Product Image">
             <div class="text-container">
               <a href="<?php echo 'pdp.php?product_id=' . urlencode(intval($product['product_id'])) ?>" class="product-link">
                 <p class="product-name"><?php echo htmlspecialchars($product['product_name']) ?></p>

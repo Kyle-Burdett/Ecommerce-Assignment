@@ -1,9 +1,9 @@
-<!-- <?php 
+<?php 
 session_start();
 if (!isset($_SESSION['user_id'])) {
   header('Location: login.php');
 }
-?> -->
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -38,23 +38,24 @@ if (!isset($_SESSION['user_id'])) {
       </div>
     </div>
     <div class="search-filters-bar">
-      <div class="category-filter-container">
-        <select title="category-filter" name="category-filter" id="category-filter" class="category-filter">
-          <option value="all">All</option>
-          <option value="computers">Computers</option>
-          <option value="homemade">Homemade</option>
-          <option value="tech">Tech</option>
-          <option value="furniture">Furniture</option>
-          <option value="decor">Decor</option>
-          <option value="books">Books</option>
-        </select>
-      </div>
-      <form class="search-form">
+      <form class="search-form" action="plp.php" method="get">
+        <div class="category-filter-container">
+          <select title="category-filter" name="category" id="category" class="category-filter">
+            <option value="all">All</option>
+            <option value="computers">Computers</option>
+            <option value="homemade">Homemade</option>
+            <option value="tech">Tech</option>
+            <option value="furniture">Furniture</option>
+            <option value="decor">Decor</option>
+            <option value="books">Books</option>
+            <option value="uncategorized">Uncategorized</option>
+          </select>
+        </div>
         <div class="search-container">
           <label class="search-label" for="search">Search</label>
           <input type="text" name="search" id="search" class="search-input">
           <button class="search-button" type="submit"><img src="../icons/magnifying-glass.svg"
-              alt="Orders Icon"></button>
+            alt="Orders Icon"></button>
         </div>
       </form>
     </div>

@@ -200,26 +200,24 @@ function trimInput($data)
       </div>
     </div>
     <div class="search-filters-bar">
-      <form id="search-form" action="plp.php" method="get">
+      <form class="search-form" action="plp.php" method="get">
         <div class="category-filter-container">
           <select title="category-filter" name="category" id="category" class="category-filter">
-            <option value="all" <?php echo ($searchCategory === 'all') ? 'selected' : '' ?>>All</option>
-            <option value="computers" <?php echo ($searchCategory === 'computers') ? 'selected' : '' ?>>Computers</option>
-            <option value="homemade" <?php echo ($searchCategory === 'homemade') ? 'selected' : '' ?>>Homemade</option>
-            <option value="tech" <?php echo ($searchCategory === 'tech') ? 'selected' : '' ?>>Tech</option>
-            <option value="furniture" <?php echo ($searchCategory === 'furniture') ? 'selected' : '' ?>>Furniture</option>
-            <option value="decor" <?php echo ($searchCategory === 'decor') ? 'selected' : '' ?>>Decor</option>
-            <option value="books" <?php echo ($searchCategory === 'books') ? 'selected' : '' ?>>Books</option>
-            <option value="uncategorized" <?php echo ($searchCategory === 'uncategorized') ? 'selected' : '' ?>>Uncategorized</option>
+            <option value="all">All</option>
+            <option value="computers">Computers</option>
+            <option value="homemade">Homemade</option>
+            <option value="tech">Tech</option>
+            <option value="furniture">Furniture</option>
+            <option value="decor">Decor</option>
+            <option value="books">Books</option>
+            <option value="uncategorized">Uncategorized</option>
           </select>
         </div>
-        <div class="search-form">
-          <div class="search-container">
-            <label class="search-label" for="search">Search</label>
-            <input type="text" name="search" id="search" class="search-input" value="<?php echo htmlspecialchars($search) ?>">
-            <button class="search-button" type="submit"><img src="../icons/magnifying-glass.svg"
-                alt="Orders Icon"></button>
-          </div>
+        <div class="search-container">
+          <label class="search-label" for="search">Search</label>
+          <input type="text" name="search" id="search" class="search-input">
+          <button class="search-button" type="submit"><img src="../icons/magnifying-glass.svg"
+            alt="Orders Icon"></button>
         </div>
       </form>
     </div>

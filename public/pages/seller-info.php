@@ -5,43 +5,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $userId = intval($_SESSION['user_id']);
-$searchCategory = "all";
-
-if (isset($_GET['product_id'])) {
-  $productId = intval($_GET['product_id']);
-  $link = mysqli_connect("localhost", "root", "", "c2c_db");
-
-  if ($link === false) {
-    die("Could not connect");
-  }
-
-  $sqlPrep = mysqli_prepare($link, "SELECT p.product_id, p.product_name, p.price, p.product_description, p.category, p.user_id, p.inventory, p.product_image, u.first_name, u.last_name FROM products p JOIN users u ON p.user_id = u.user_id WHERE product_id = ?");
-  if ($sqlPrep) {
-    mysqli_stmt_bind_param($sqlPrep, 'i', $productId);
-    mysqli_execute($sqlPrep);
-    mysqli_stmt_bind_result($sqlPrep, $fetchedId, $fetchedName, $fetchedPrice, $fetchedDescription, $fetchedCategory, $fetchedUserId, $fetchedInventory, $fetchedImage, $fetchedFirstName, $fetchedLastName);
-
-    if (mysqli_stmt_fetch($sqlPrep)) {
-      $productId = $fetchedId;
-      $name = $fetchedName;
-      $price = $fetchedPrice;
-      $description = $fetchedDescription;
-      $category = $fetchedCategory;
-      $productSellerId = $fetchedUserId;
-      $inventory = $fetchedInventory;
-      $productImage = (!empty($fetchedImage)) ? htmlspecialchars($fetchedImage) : '../images/product-placeholder.jpg';
-      $firstName = $fetchedFirstName;
-      $lastName = $fetchedLastName;
-    } else {
-      header('Location: page-not-found.php');
-    }
-
-    mysqli_stmt_close($sqlPrep);
-  }
-  mysqli_close($link);
-} else {
-  header('Location: page-not-found.php');
-}
+$errors = array('name' => '', 'description' => '');
 
 $link = mysqli_connect("localhost", "root", "", "c2c_db");
 
@@ -51,25 +15,112 @@ if ($link === false) {
 
 $sqlPrep = mysqli_prepare($link, "SELECT user_id, seller_name, seller_photo, seller_description FROM seller_info WHERE user_id = ?");
 if ($sqlPrep) {
-  mysqli_stmt_bind_param($sqlPrep, 'i', $productSellerId);
+  mysqli_stmt_bind_param($sqlPrep, 'i', $userId);
   mysqli_execute($sqlPrep);
   mysqli_stmt_bind_result($sqlPrep, $fetchedId, $fetchedName, $fetchedImage, $fetchedDescription);
 
   if (mysqli_stmt_fetch($sqlPrep)) {
     $sellerId = intval($fetchedId);
-    $sellerName = $fetchedName;
+    $name = $fetchedName;
     $sellerPhoto = $fetchedImage;
-    $sellerDescription = $fetchedDescription;
+    $description = $fetchedDescription;
   } else {
     $sellerId = -1;
-    $sellerName = '';
+    $name = '';
     $sellerPhoto = '../images/product-placeholder.jpg';
-    $sellerDescription = '';
+    $description = '';
   }
 
   mysqli_stmt_close($sqlPrep);
 }
 mysqli_close($link);
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+  $name = trimInput($_POST['seller-name']);
+  $description = trimInput($_POST['seller-description']);
+
+  if (empty($name)) {
+    $errors['name'] = "A name is required.";
+  } else {
+    if (strlen($name) > 100) {
+      $errors['name'] = "Name needs to be under 100 characters";
+    } else {
+      $errors['name'] = "";
+    }
+  }
+
+  if (empty($description)) {
+    $description = "";
+  } else if (strlen($description) > 1000) {
+    $errors['description'] = "Description needs to be under 1000 characters";
+  } else {
+    $errors['description'] = "";
+  }
+
+  if (!array_filter($errors)) {
+
+    $sellerImagePath = $sellerPhoto;
+
+    if (isset($_FILES['seller-image']) && $_FILES['seller-image']['error'] === UPLOAD_ERR_OK) {
+      $fileTmpPath = $_FILES['seller-image']['tmp_name'];
+      $fileName = $_FILES['seller-image']['name'];
+      $fileSize = $_FILES['seller-image']['size'];
+      $fileType = $_FILES['seller-image']['type'];
+      $fileNameCmps = explode(".", $fileName);
+      $fileExtension = strtolower(end($fileNameCmps));
+
+      $newFileName = time() . $fileName;
+
+      $allowedfileExtensions = array('jpg', 'gif', 'png', 'jpeg');
+
+      if (in_array($fileExtension, $allowedfileExtensions)) {
+        $uploadFileDir = '../uploads/users/';
+        $dest_path = $uploadFileDir . $newFileName;
+
+        if (move_uploaded_file($fileTmpPath, $dest_path)) {
+          $sellerImagePath = $dest_path;
+        } else {
+          echo 'Error moving uploaded file.';
+        }
+      } else {
+        echo 'Upload failed. Allowed types: ' . implode(',', $allowedfileExtensions);
+      }
+    }
+
+    $link = mysqli_connect("localhost", "root", "", "c2c_db");
+
+    if ($link === false) {
+      die("Could not connect");
+    }
+
+    if ($sellerId === -1) {
+      $sqlPrep = mysqli_prepare($link, "INSERT INTO seller_info (user_id, seller_name, seller_photo, seller_description) VALUES (?, ?, ?, ?)");
+      if ($sqlPrep) {
+        mysqli_stmt_bind_param($sqlPrep, "isss", $userId, $name, $sellerImagePath, $description);
+        if (mysqli_execute($sqlPrep)) {
+          $productId = mysqli_insert_id($link);
+        }
+        mysqli_stmt_close($sqlPrep);
+      }
+    } else {
+      $sqlPrep = mysqli_prepare($link, "UPDATE seller_info SET seller_name = ?, seller_photo = ?, seller_description = ? WHERE user_id = ?");
+      if ($sqlPrep) {
+        mysqli_stmt_bind_param($sqlPrep, "sssi", $name, $sellerImagePath, $description, $userId);
+        mysqli_execute($sqlPrep);
+        mysqli_stmt_close($sqlPrep);
+      }
+    }
+
+    mysqli_close($link);
+  }
+}
+
+function trimInput($data)
+{
+  $data = trim($data);
+  return $data;
+}
 
 ?>
 
@@ -80,16 +131,15 @@ mysqli_close($link);
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../styling/main.css">
+  <link rel="stylesheet" href="../styling/seller-info.css">
   <link rel="stylesheet" href="../styling/header.css">
   <link rel="stylesheet" href="../styling/footer.css">
-  <link rel="stylesheet" href="../styling/pdp.css">
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Sora:wght@100..800&display=swap"
     rel="stylesheet">
-  <title>PDP Page</title>
+  <title>Add Product Screen</title>
 </head>
 
 <body>
@@ -129,24 +179,29 @@ mysqli_close($link);
       </form>
     </div>
   </header>
-  <section class="pdp-section">
-    <div class="product-container">
-      <div class="images-container">
-        <img class="main-image" src="<?php echo $productImage ?>" alt="product-main">
-      </div>
-      <div class="info-container">
-        <p class="category-text"><?php echo htmlspecialchars($category) ?></p>
-        <h1 class="product-name"><?php echo htmlspecialchars($name) ?></h1>
-        <h3 class="product-price">R <?php echo htmlspecialchars(number_format($price, 2, ".", ",")) ?></h3>
-        <p class="product-description"><?php echo htmlspecialchars($description) ?></p>
-        <button class="buy-button"><?php echo ($userId == $productSellerId) ? 'See product' : 'Add to Cart' ?></button>
-        <h3 class="info-heading">Seller</h3>
-        <div class="seller-container">
-          <h6 class="seller-name"><?php echo ($sellerId == -1) ? htmlspecialchars($firstName) . " " . htmlspecialchars($lastName) : $sellerName ?></h6>
-          <p class="info-text"><?php echo ($sellerId != -1) ? $sellerDescription : "" ?></p>
-        </div>
-      </div>
+  <section class="seller-info-section">
+    <div class="heading-back-container">
+      <a href="my-profile.php" class="back-link"><img src="../icons/arrow-left.svg" alt="Back arrow">
+        <p>Back</p>
+      </a>
+      <h1>My Seller Info</h1>
     </div>
+
+    <form class="seller-info-form" method="post" action="seller-info.php" enctype="multipart/form-data">
+      <label class="label" for="seller-image">Seller Image</label>
+      <img class="image-preview" src="" alt="Image Preview">
+      <input class="image-input" type="file" id="seller-image" name="seller-image" alt="Seller Image">
+      <label class="label" for="seller-name">Seller Name</label>
+      <p class="error-text"></p>
+      <input class="text-input input" type="text" id="seller-name" name="seller-name"></input>
+      <label class="label" for="seller-description">Description</label>
+      <p class="error-text"></p>
+      <textarea rows="10" cols="50" id="seller-description" name="seller-description"></textarea>
+      <div class="button-wrapper">
+        <button class="submit" type="button" id="cancel-button" onclick="history.back()">Cancel</button>
+        <button class="submit" type="submit">Update</button>
+      </div>
+    </form>
   </section>
   <footer>
     <div class="links-section">

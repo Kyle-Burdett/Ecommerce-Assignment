@@ -49,6 +49,19 @@ header {
 
 .search-filters-bar {
   width: 100%;
+  background-color: var(--primary-grey);
+  height: 64px;
+  padding: 0 64px;
+}  
+
+.search-form {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
 }
 
 .category-filter-container {
@@ -70,26 +83,6 @@ header {
 
 .category-filter option {
   background-color: white;
-}
-
-.search-form {
-  width: 100%;
-  max-width: none;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-#search-form {
-  width: 100%;
-  max-width: none;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 
 .search-container {
@@ -145,8 +138,11 @@ header {
   }
 
   .search-filters-bar {
-    gap: 16px;
     padding: 8px 16px;
+  }
+
+  .search-form {
+    gap: 16px;
   }
 
   .category-filter-container {

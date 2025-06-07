@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
       </div>
     </div>
     <div class="search-filters-bar">
-      <form id="search-form" action="plp.php" method="get">
+      <form class="search-form" action="plp.php" method="get">
         <div class="category-filter-container">
           <select title="category-filter" name="category" id="category" class="category-filter">
             <option value="all" <?php echo ($searchCategory === 'all') ? 'selected' : '' ?>>All</option>
@@ -97,13 +97,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             <option value="uncategorized" <?php echo ($searchCategory === 'uncategorized') ? 'selected' : '' ?>>Uncategorized</option>
           </select>
         </div>
-        <div class="search-form">
-          <div class="search-container">
-            <label class="search-label" for="search">Search</label>
-            <input type="text" name="search" id="search" class="search-input" value="<?php echo htmlspecialchars($search) ?>">
-            <button class="search-button" type="submit"><img src="../icons/magnifying-glass.svg"
-                alt="Orders Icon"></button>
-          </div>
+        <div class="search-container">
+          <label class="search-label" for="search">Search</label>
+          <input type="text" name="search" id="search" class="search-input" value="<?php echo htmlspecialchars($search) ?>">
+          <button class="search-button" type="submit"><img src="../icons/magnifying-glass.svg"
+            alt="Orders Icon"></button>
         </div>
       </form>
     </div>

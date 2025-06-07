@@ -1,26 +1,10 @@
-<?php 
-
+<!-- <?php 
 session_start();
 if (!isset($_SESSION['user_id'])) {
   header('Location: login.php');
   exit;
 }
-
-$userId = intval($_SESSION['user_id']);
-
-$link = mysqli_connect("localhost", "root", "", "c2c_db");
-
-if ($link === false) {
-  die("Could not connect to server");
-}
-
-$sqlPrep = mysqli_prepare($link, "SELECT  product_id, product_name, price, category, inventory, product_image FROM products WHERE user_id = ?");
-mysqli_stmt_bind_param($sqlPrep, 'i', $userId);
-mysqli_execute($sqlPrep);
-mysqli_stmt_bind_result($sqlPrep, $productId, $name, $price, $category, $inventory, $productImage);
-
-
-?>
+?> -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -29,15 +13,15 @@ mysqli_stmt_bind_result($sqlPrep, $productId, $name, $price, $category, $invento
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../styling/main.css">
-  <link rel="stylesheet" href="../styling/my-products.css">
   <link rel="stylesheet" href="../styling/header.css">
   <link rel="stylesheet" href="../styling/footer.css">
+  <link rel="stylesheet" href="../styling/my-profile.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Sora:wght@100..800&display=swap"
     rel="stylesheet">
-  <title>Product List</title>
+  <title>Create an Account</title>
 </head>
 
 <body>
@@ -77,54 +61,23 @@ mysqli_stmt_bind_result($sqlPrep, $productId, $name, $price, $category, $invento
       </form>
     </div>
   </header>
-  <section class="my-products-section">
-    <div class="heading-container">
-      <div class="heading-back-container"><a class="back-link" onclick="history.back()"><img src="../icons/arrow-left.svg" alt="Back arrow"><p>Back</p></a><h1>My Products</h1></div>
-      <a class="add-product-button" href="add-product.php">Add</a>
-    </div>
-    
-    <div class="products-container">
-        <div class="products-header">
-          <div></div>
-          <p class="product-header">Product Name</p>
-          <p class="product-header">In Stock</p>
-          <p class="product-header price-header">Price</p>
+  <section class="my-profile-section">
+    <h1>My Profile</h1>
+    <div class="profile-nav-container">
+      <h2>Username</h2>
+      <div class="options-container">
+        <div class="buyer-container">
+          <h3>Buying</h3>
+          <p><a class="profile-link" href="buyer-orders.php">My Orders</a></p>
         </div>
-        <?php 
-
-        $hasProducts = false;
-        
-        while (mysqli_stmt_fetch($sqlPrep)) {
-          if (!$hasProducts) {
-            $hasProducts = true;
-          }
-          
-          $priceFormatted = htmlspecialchars(number_format($price, 2, ".", ","));
-          $nameFormatted = htmlspecialchars($name);
-          $inventoryFormatted = htmlspecialchars($inventory);
-          if (isset($productImage)) {
-            $imagePathFormatted = htmlspecialchars($productImage);
-          } else {
-            $imagePathFormatted = '../images/product-placeholder.jpg';
-          }
-          $safeProductId = urlencode(intval($productId));
-          $productItem = "<a class=\"product-item-link\" href=\"add-product.php?product_id=$safeProductId\"><div class=\"product-item\">
-          <img class=\"product-image\" src=\"$imagePathFormatted\" alt=\"Product Image\">
-          <p class=\"product-name grid-item-text\">$nameFormatted</p>
-          <p class=\"quantity grid-item-text\">$inventoryFormatted</p>
-          <p class=\"product-price grid-item-text\">R $priceFormatted</p>
-        </div></a>";
-        echo $productItem;
-        }
-
-        if (!$hasProducts) {
-          echo "<div class=\"no-products-message\"><p>You have no products listed</p></div>";
-        }
-
-        mysqli_stmt_close($sqlPrep);
-        mysqli_close($link);
-        ?>
+        <div class="seller-container">
+          <h3>Selling</h3>
+          <p class="profile-link"><a href="seller-info.php">My Seller Info</a></p>
+          <p class="profile-link"><a href="my-products.php">My Products</a></p>
+          <p class="profile-link"><a href="seller-orders.php">Orders</a></p>
+        </div>
       </div>
+    </div>
   </section>
   <footer>
     <div class="links-section">
@@ -145,7 +98,7 @@ mysqli_stmt_bind_result($sqlPrep, $productId, $name, $price, $category, $invento
             <p class="links-column-heading">Profile Options</p>
             <ul>
               <li><a href="https://www.google.com">Account</a></li>
-              <li><a href="https://www.google.com">My Orders</a></li>
+              <li><a href="https://www.google.com">Orders</a></li>
               <li><a href="https://www.google.com">Seller Info</a></li>
             </ul>
           </div>

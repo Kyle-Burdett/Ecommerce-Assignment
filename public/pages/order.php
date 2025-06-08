@@ -2,72 +2,91 @@
 session_start();
 if (!isset($_SESSION['user_id'])) {
   header('Location: login.php');
+  exit;
 }
 
 $userId = intval($_SESSION['user_id']);
-$errors = array('address' => '');
+
+if (isset($_GET['order_id'])) {
+
+  $orderId = intval($_GET['order_id']);
+  $link = mysqli_connect("localhost", "root", "", "c2c_db");
+
+  if ($link === false) {
+    die("Could not connect");
+  }
+
+  $sqlPrep = mysqli_prepare($link, "SELECT o.order_id, o.order_date, o.order_status, o.total, o.shipping_address, o.shipping_date, o.received_date, o.buyer_id, o.seller_id, p.product_name, p.price FROM orders o JOIN order_items oi ON o.order_id = oi.order_id JOIN products p ON oi.product_id = p.product_id WHERE o.order_id = ?");
+  if ($sqlPrep) {
+    mysqli_stmt_bind_param($sqlPrep, 'i', $orderId);
+    mysqli_execute($sqlPrep);
+    mysqli_stmt_bind_result($sqlPrep, $fetchedId, $fetchedDate, $fetchedStatus, $fetchedTotal, $fetchedAddress, $fetchedShippingDate, $fetchedReceivedDate, $fetchedBuyerId, $fetchedSellerId, $fetchedProductName, $fetchedPrice);
+
+    if (mysqli_stmt_fetch($sqlPrep)) {
+      $orderId = $fetchedId;
+      $orderDate = date('d/m/Y', strtotime($fetchedDate));
+      $status = $fetchedStatus;
+      $total = number_format(floatval($fetchedTotal), 2, ".", ",");
+      $address = $fetchedAddress;
+      if (isset($fetchedShippingDate)) {
+        $shippingDate = date('d/m/Y', strtotime($fetchedShippingDate));
+      } else {
+        $shippingDate = "";
+      }
+      if (isset($fetchedReceivedDate)) {
+        $receivedDate = date('d/m/Y', strtotime($fetchedReceivedDate));
+      } else {
+        $receivedDate = "";
+      }
+      $buyerId = intval($fetchedBuyerId);
+      $sellerId = intval($fetchedSellerId);
+      $productName = $fetchedProductName;
+      $productPrice = number_format(floatval($fetchedPrice), 2, ".", ",");
+    } else {
+      header("Location: page-not-found.php");
+      exit;
+    }
+
+    mysqli_stmt_close($sqlPrep);
+  }
+  mysqli_close($link);
+
+  if ($userId != $buyerId && $userId != $sellerId) {
+    header('Location: page-not-found.php');
+    exit;
+  }
+
+  $buttonText = "Ship Order";
+
+  if ($status == "shipping") {
+    $buttonText = "Complete Order";
+  }
+
+  $submitValue = "shipping";
+
+  if ($status == "shipping") {
+    $submitValue = "completed";
+  }
+} else {
+  header('Location: page-not-found.php');
+  exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-  if (isset($_POST['product-id'])) {
+  if ($userId == $sellerId) {
+    $allowedStatuses = ['shipping', 'completed'];
+    $status = trimInput($_POST['order-status']);
 
-    $productId = intval($_POST['product-id']);
-    $link = mysqli_connect("localhost", "root", "", "c2c_db");
-
-    if ($link === false) {
-      die("Could not connect");
+    if (!in_array($status, $allowedStatuses)) {
+      die("Invalid status");
     }
 
-    $sqlPrep = mysqli_prepare($link, "SELECT p.product_name, p.price, p.inventory, u.user_id FROM products p JOIN users u ON p.user_id = u.user_id WHERE product_id = ?");
-    if ($sqlPrep) {
-      mysqli_stmt_bind_param($sqlPrep, 'i', $productId);
-      mysqli_execute($sqlPrep);
-      mysqli_stmt_bind_result($sqlPrep, $fetchedName, $fetchedPrice, $inventory, $fetchedId);
-
-      if (mysqli_stmt_fetch($sqlPrep)) {
-        $name = $fetchedName;
-        $price = floatval($fetchedPrice);
-        $total = $price;
-        $inventory = intval($inventory);
-        $sellerId = intval($fetchedId);
-      } else {
-        mysqli_stmt_close($sqlPrep);
-        mysqli_close($link);
-        header('Location: plp.php');
-        exit;
-      }
-
-      mysqli_stmt_close($sqlPrep);
+    if (isset($_POST['order_id'])) {
+      $orderId = intval($_POST['order_id']);
     }
 
-    $sqlPrep = mysqli_prepare($link, "SELECT physical_address FROM users WHERE user_id = ?");
-    if ($sqlPrep) {
-      mysqli_stmt_bind_param($sqlPrep, 'i', $userId);
-      mysqli_execute($sqlPrep);
-      mysqli_stmt_bind_result($sqlPrep, $fetchedAddress);
-
-      if (mysqli_stmt_fetch($sqlPrep)) {
-        $address = $fetchedAddress;
-      } else {
-        $address = '';
-      }
-
-      mysqli_stmt_close($sqlPrep);
-
-      mysqli_close($link);
-    }
-  } else {
-    $address = trimInput($_POST['physical-address']);
-
-    if (empty($address)) {
-      $address = "";
-    } else if (strlen($address) > 100) {
-      $errors['address'] = "Address needs to be under 100 characters";
-    } else {
-      $errors['address'] = "";
-    }
-
-    if (!array_filter($errors)) {
+    if ($status && $orderId) {
 
       $link = mysqli_connect("localhost", "root", "", "c2c_db");
 
@@ -75,43 +94,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die("Could not connect");
       }
 
-      $orderDate = date("Y-m-d H:i:s");
-      $orderStatus = "pending";
-
-      $sqlPrep = mysqli_prepare($link, "INSERT INTO orders (order_date, order_status, total, shipping_address, buyer_id, seller_id) VALUES (?, ?, ?, ?, ?, ?)");
+      $sqlPrep = mysqli_prepare($link, "UPDATE orders SET order_status = ? WHERE order_id = ?");
       if ($sqlPrep) {
-        mysqli_stmt_bind_param($sqlPrep, "ssdsii", $orderDate, $orderStatus, $total, $address, $sellerId, $userId);
-        if (mysqli_execute($sqlPrep)) {
-          $orderId = intval(mysqli_insert_id($link));
-        }
-        mysqli_stmt_close($sqlPrep);
-      }
-
-      $sqlPrep = mysqli_prepare($link, "INSERT INTO order_items (order_id, product_id) VALUES (?, ?)");
-      if ($sqlPrep) {
-        mysqli_stmt_bind_param($sqlPrep, "ii", $orderId, $productId);
-        mysqli_execute($sqlPrep);
-        mysqli_stmt_close($sqlPrep);
-      }
-
-      $sqlPrep = mysqli_prepare($link, "UPDATE products SET inventory = inventory - 1 WHERE product_id = ? AND inventory > 0");
-      if ($sqlPrep) {
-        mysqli_stmt_bind_param($sqlPrep, "i", $productId);
+        mysqli_stmt_bind_param($sqlPrep, "si", $status, $orderId);
         mysqli_execute($sqlPrep);
         mysqli_stmt_close($sqlPrep);
       }
 
       mysqli_close($link);
-      header('Location: buyer-orders.php');
     }
   }
+
+  header("Location: order.php?order_id=" . urlencode($orderId));
+  exit;
 }
 
 function trimInput($data)
-{
-  $data = trim($data);
-  return $data;
-}
+  {
+    $data = trim($data);
+    return $data;
+  }
 
 ?>
 
@@ -122,15 +124,15 @@ function trimInput($data)
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../styling/main.css">
-  <link rel="stylesheet" href="../styling/checkout.css">
   <link rel="stylesheet" href="../styling/header.css">
   <link rel="stylesheet" href="../styling/footer.css">
+  <link rel="stylesheet" href="../styling/order.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Sora:wght@100..800&display=swap"
     rel="stylesheet">
-  <title>Checkout</title>
+  <title>Order Page</title>
 </head>
 
 <body>
@@ -170,36 +172,36 @@ function trimInput($data)
       </form>
     </div>
   </header>
-  <section class="checkout-section">
+  <section class="order-section">
     <div class="heading-back-container">
-      <a href="my-profile.php" class="back-link"><img src="../icons/arrow-left.svg" alt="Back arrow">
+      <a href="<?php echo ($userId == $sellerId) ? "seller-orders.php" : "buyer-orders.php" ?>" class="back-link"><img src="../icons/arrow-left.svg" alt="Back arrow">
         <p>Back</p>
       </a>
-      <h1>Checkout</h1>
+      <h1>Order <?php echo htmlspecialchars($orderId) ?></h1>
     </div>
-    <form class="checkout-container" method="post" action="checkout.php">
-      <div class="checkout-input-container">
-        <label class="label" for="shipping-address">Shipping Address</label>
-        <p class="error-text"></p>
-        <input class="text-input input" type="text" id="shipping-address" name="shipping-address" value="<?php echo $address ?>">
+    <div class="order-info-container">
+      <p class="order-address">Address: <b><?php echo htmlspecialchars($address) ?></b></p>
+      <p class="items-text">Items:</p>
+      <div class="product-container">
+        <h6 class="product-name"><?php echo htmlspecialchars($productName) ?></h6>
+        <p class="quantity">x1</p>
+        <p class="product-price">R <?php echo htmlspecialchars($productPrice) ?></p>
       </div>
-      <div class="order-details-container">
-        <div class="product-container">
-          <h6 class="product-name"><?php echo htmlspecialchars($name) ?></h6>
-          <p class="quantity">x<?php echo htmlspecialchars($inventory) ?></p>
-          <p class="product-price">R <?php echo number_format($price, 2, ".", ",") ?></p>
-        </div>
-        <div class="total-container">
-          <h6 class="total">Total: R <?php echo number_format($total, 2, ".", ",") ?></h6>
-        </div>
-        <div class="button-wrapper">
-          <button class="submit" type="button" id="cancel-button" onclick="history.back()">Cancel</button>
-          <button class="submit" type="submit">Place Order</button>
-        </div>
-        <p></p>
+      <p class="total-text">Total: <b>R <?php echo htmlspecialchars($total) ?></b></p>
+      <div class="date-container">
+        <p class="date-text">Order Date: <b><?php echo htmlspecialchars($orderDate) ?></b></p>
+        <p class="date-text">Shipped Date: <b><?php echo htmlspecialchars($shippingDate) ?></b></p>
+        <p class="date-text">Received Date: <b><?php echo htmlspecialchars($receivedDate) ?></b></p>
       </div>
-    </form>
-
+      <p class="order-status">Status: <b><?php echo htmlspecialchars($status) ?></b></p>
+      <?php if ($userId == $sellerId && $status != "completed"): ?>
+        <form class="change-status-form" method="post" action="order.php?order_id=<?php echo urlencode($orderId); ?>">
+          <input type="hidden" value="<?php echo htmlspecialchars($submitValue) ?>" name="order-status" id="order-status">
+          <input type="hidden" value="<?php echo htmlspecialchars($orderId) ?>" name="order_id" id="order_id">
+          <button class="fulfill-order-button" type="submit"><?php echo htmlspecialchars($buttonText) ?></button>
+        </form>
+      <?php endif; ?>
+    </div>
   </section>
   <footer>
     <div class="links-section">

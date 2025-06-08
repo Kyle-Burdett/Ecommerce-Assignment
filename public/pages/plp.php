@@ -135,12 +135,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
           <div class="links-column">
             <p class="links-column-heading">Search by category:</p>
             <ul>
-              <li><a href="plp.php/category=computers&search=">Computers</a></li>
-              <li><a href="plp.php/category=tech&search=">Tech</a></li>
-              <li><a href="plp.php/category=homemade&search=">Homemade</a></li>
-              <li><a href="plp.php/category=furniture&search=">Furniture</a></li>
-              <li><a href="plp.php/category=decor&search=">Decor</a></li>
-              <li><a href="plp.php/category=books&search=">Books</a></li>
+              <li><a href="plp.php?category=computers&search=">Computers</a></li>
+              <li><a href="plp.php?category=tech&search=">Tech</a></li>
+              <li><a href="plp.php?category=homemade&search=">Homemade</a></li>
+              <li><a href="plp.php?category=furniture&search=">Furniture</a></li>
+              <li><a href="plp.php?category=decor&search=">Decor</a></li>
+              <li><a href="plp.php?category=books&search=">Books</a></li>
             </ul>
           </div>
           <div class="links-column">

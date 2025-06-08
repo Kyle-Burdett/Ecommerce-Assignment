@@ -95,20 +95,20 @@ if (!isset($_SESSION['user_id'])) {
           <div class="links-column">
             <p class="links-column-heading">Search by category:</p>
             <ul>
-              <li><a href="https://www.google.com">Computers</a></li>
-              <li><a href="https://www.google.com">Tech</a></li>
-              <li><a href="https://www.google.com">Homemade</a></li>
-              <li><a href="https://www.google.com">Furniture</a></li>
-              <li><a href="https://www.google.com">Decor</a></li>
-              <li><a href="https://www.google.com">Books</a></li>
+              <li><a href="plp.php/category=computers&search=">Computers</a></li>
+              <li><a href="plp.php/category=tech&search=">Tech</a></li>
+              <li><a href="plp.php/category=homemade&search=">Homemade</a></li>
+              <li><a href="plp.php/category=furniture&search=">Furniture</a></li>
+              <li><a href="plp.php/category=decor&search=">Decor</a></li>
+              <li><a href="plp.php/category=books&search=">Books</a></li>
             </ul>
           </div>
           <div class="links-column">
             <p class="links-column-heading">Profile Options</p>
             <ul>
-              <li><a href="https://www.google.com">Account</a></li>
-              <li><a href="https://www.google.com">Orders</a></li>
-              <li><a href="https://www.google.com">Seller Info</a></li>
+              <li><a href="/public/pages/my-profile.php">Account</a></li>
+              <li><a href="/public/pages/buyer-orders.php">My Orders</a></li>
+              <li><a href="/public/pages/seller-info.php">Seller Info</a></li>
             </ul>
           </div>
           <div class="links-column">
@@ -122,7 +122,7 @@ if (!isset($_SESSION['user_id'])) {
       </div>
     </div>
     <div class="notice-section">
-      <p>This is a protoype site meant for assessment purposes. This is not an official C2C site and should not be
+      <p>Note that this is a protoype site meant for assessment purposes. This is not a real C2C site and should not be
         used for any real purchases or transactions.</p>
     </div>
   </footer>

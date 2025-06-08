@@ -1,75 +1,24 @@
-<?php
+<?php 
+
 session_start();
 if (!isset($_SESSION['user_id'])) {
   header('Location: login.php');
+  exit;
 }
 
 $userId = intval($_SESSION['user_id']);
-$searchCategory = "all";
-
-if (isset($_GET['product_id'])) {
-  $productId = intval($_GET['product_id']);
-  $link = mysqli_connect("localhost", "root", "", "c2c_db");
-
-  if ($link === false) {
-    die("Could not connect");
-  }
-
-  $sqlPrep = mysqli_prepare($link, "SELECT p.product_id, p.product_name, p.price, p.product_description, p.category, p.user_id, p.inventory, p.product_image, u.first_name, u.last_name FROM products p JOIN users u ON p.user_id = u.user_id WHERE product_id = ?");
-  if ($sqlPrep) {
-    mysqli_stmt_bind_param($sqlPrep, 'i', $productId);
-    mysqli_execute($sqlPrep);
-    mysqli_stmt_bind_result($sqlPrep, $fetchedId, $fetchedName, $fetchedPrice, $fetchedDescription, $fetchedCategory, $fetchedUserId, $fetchedInventory, $fetchedImage, $fetchedFirstName, $fetchedLastName);
-
-    if (mysqli_stmt_fetch($sqlPrep)) {
-      $productId = $fetchedId;
-      $name = $fetchedName;
-      $price = $fetchedPrice;
-      $description = $fetchedDescription;
-      $category = $fetchedCategory;
-      $productSellerId = $fetchedUserId;
-      $inventory = $fetchedInventory;
-      $productImage = (!empty($fetchedImage)) ? htmlspecialchars($fetchedImage) : '../images/product-placeholder.jpg';
-      $firstName = $fetchedFirstName;
-      $lastName = $fetchedLastName;
-    } else {
-      header('Location: page-not-found.php');
-    }
-
-    mysqli_stmt_close($sqlPrep);
-  }
-  mysqli_close($link);
-} else {
-  header('Location: page-not-found.php');
-}
 
 $link = mysqli_connect("localhost", "root", "", "c2c_db");
 
 if ($link === false) {
-  die("Could not connect");
+  die("Could not connect to server");
 }
 
-$sqlPrep = mysqli_prepare($link, "SELECT user_id, seller_name, seller_photo, seller_description FROM seller_info WHERE user_id = ?");
-if ($sqlPrep) {
-  mysqli_stmt_bind_param($sqlPrep, 'i', $productSellerId);
-  mysqli_execute($sqlPrep);
-  mysqli_stmt_bind_result($sqlPrep, $fetchedId, $fetchedName, $fetchedImage, $fetchedDescription);
+$sqlPrep = mysqli_prepare($link, "SELECT  order_id, order_status, total, shipping_address FROM orders WHERE buyer_id = ?");
+mysqli_stmt_bind_param($sqlPrep, 'i', $userId);
+mysqli_execute($sqlPrep);
+mysqli_stmt_bind_result($sqlPrep, $orderId, $status, $total, $address);
 
-  if (mysqli_stmt_fetch($sqlPrep)) {
-    $sellerId = intval($fetchedId);
-    $sellerName = $fetchedName;
-    $sellerPhoto = $fetchedImage;
-    $sellerDescription = $fetchedDescription;
-  } else {
-    $sellerId = -1;
-    $sellerName = '';
-    $sellerPhoto = '../images/product-placeholder.jpg';
-    $sellerDescription = '';
-  }
-
-  mysqli_stmt_close($sqlPrep);
-}
-mysqli_close($link);
 
 ?>
 
@@ -80,16 +29,15 @@ mysqli_close($link);
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../styling/main.css">
+  <link rel="stylesheet" href="../styling/orders.css">
   <link rel="stylesheet" href="../styling/header.css">
   <link rel="stylesheet" href="../styling/footer.css">
-  <link rel="stylesheet" href="../styling/pdp.css">
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Sora:wght@100..800&display=swap"
     rel="stylesheet">
-  <title>PDP Page</title>
+  <title>My Orders</title>
 </head>
 
 <body>
@@ -124,34 +72,53 @@ mysqli_close($link);
           <label class="search-label" for="search">Search</label>
           <input type="text" name="search" id="search" class="search-input">
           <button class="search-button" type="submit"><img src="../icons/magnifying-glass.svg"
-              alt="Orders Icon"></button>
+            alt="Orders Icon"></button>
         </div>
       </form>
     </div>
   </header>
-  <section class="pdp-section">
-    <div class="product-container">
-      <div class="images-container">
-        <img class="main-image" src="<?php echo $productImage ?>" alt="product-main">
-      </div>
-      <div class="info-container">
-        <p class="category-text"><?php echo htmlspecialchars($category) ?></p>
-        <h1 class="product-name"><?php echo htmlspecialchars($name) ?></h1>
-        <h3 class="product-price">R <?php echo htmlspecialchars(number_format($price, 2, ".", ",")) ?></h3>
-        <p class="product-description"><?php echo htmlspecialchars($description) ?></p>
-        <?php if ($inventory > 0): ?>
-        <form method="<?php echo ($userId == $productSellerId) ? "get" : "post" ?>" action="<?php echo ($userId == $productSellerId) ? "add-product.php" : "checkout.php" ?>">
-          <input type="hidden" name="product-id" id="product-id" value="<?php echo htmlspecialchars($productId) ?>">
-          <button class="buy-button"><?php echo ($userId == $productSellerId) ? 'See product' : 'Order' ?></button>
-        </form>
-        <?php endif; ?>
-        <h3 class="info-heading">Seller</h3>
-        <div class="seller-container">
-          <h6 class="seller-name"><?php echo ($sellerId == -1) ? htmlspecialchars($firstName) . " " . htmlspecialchars($lastName) : htmlspecialchars($sellerName) ?></h6>
-          <p class="info-text"><?php echo ($sellerId != -1) ? htmlspecialchars($sellerDescription) : "" ?></p>
+  <section class="my-orders-section">
+    <div class="heading-back-container"><a class="back-link" onclick="history.back()"><img src="../icons/arrow-left.svg" alt="Back arrow"><p>Back</p></a><h1>My Orders</h1></div>
+    
+    <div class="orders-container">
+        <div class="orders-header">
+          <p class="order-header">Order Id</p>
+          <p class="order-header">Status</p>
+          <p class="address-header order-header">Address</p>
+          <p class="order-header total-header">Total</p>
         </div>
+        <?php 
+
+        $hasOrders = false;
+        
+        while (mysqli_stmt_fetch($sqlPrep)) {
+          if (!$hasOrders) {
+            $hasOrders = true;
+          }
+          
+          $safeOrderId = urlencode(intval($orderId));
+          $orderIdFormatted = htmlspecialchars($orderId);
+          $orderStatus = htmlspecialchars($orderId);
+          $addressFormatted = htmlspecialchars($address);
+          $totalFormatted = htmlspecialchars(number_format($total, 2, ".", ","));
+          
+          $orderItem = "<a class=\"order-link\" href=\"order.php.php?order_id=$safeOrderId\"><div class=\"order-item\">
+          <p class=\"order-id grid-item-text\">$orderIdFormatted</p>
+          <p class=\"status-text grid-item-text\">$orderStatus</p>
+          <p class=\"address-text grid-item-text\">$addressFormatted</p>
+          <p class=\"total grid-item-text\">R $totalFormatted</p>
+        </div></a>";
+        echo $orderItem;
+        }
+
+        if (!$hasOrders) {
+          echo "<div class=\"no-orders-message\"><p>You have no orders</p></div>";
+        }
+
+        mysqli_stmt_close($sqlPrep);
+        mysqli_close($link);
+        ?>
       </div>
-    </div>
   </section>
   <footer>
     <div class="links-section">

@@ -97,11 +97,11 @@ mysqli_stmt_bind_result($sqlPrep, $orderId, $status, $total, $address);
           
           $safeOrderId = urlencode(intval($orderId));
           $orderIdFormatted = htmlspecialchars($orderId);
-          $orderStatus = htmlspecialchars($orderId);
+          $orderStatus = htmlspecialchars($status);
           $addressFormatted = htmlspecialchars($address);
           $totalFormatted = htmlspecialchars(number_format($total, 2, ".", ","));
           
-          $orderItem = "<a class=\"order-link\" href=\"order.php.php?order_id=$safeOrderId\"><div class=\"order-item\">
+          $orderItem = "<a class=\"order-link\" href=\"order.php?order_id=$safeOrderId\"><div class=\"order-item\">
           <p class=\"order-id grid-item-text\">$orderIdFormatted</p>
           <p class=\"status-text grid-item-text\">$orderStatus</p>
           <p class=\"address-text grid-item-text\">$addressFormatted</p>

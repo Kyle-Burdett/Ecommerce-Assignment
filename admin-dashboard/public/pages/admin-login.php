@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $_SESSION['user_id'] = $userId;
         mysqli_stmt_close($emailSqlPrep);
 
-        $sqlPrep = mysqli_prepare($link, "SELECT DISTINCT p.permission_name FROM users u JOIN user_roles ur ON u.user_id = ur.user_id JOIN role_permissions rp ON ur.role_id = rp.role_id JOIN permissions p ON rp.permission_id = p.permission_id WHERE u.user_id = ?");
+        $sqlPrep = mysqli_prepare($link, "SELECT DISTINCT p.permission_name FROM admin_users u JOIN user_roles ur ON u.user_id = ur.user_id JOIN role_permissions rp ON ur.role_id = rp.role_id JOIN permissions p ON rp.permission_id = p.permission_id WHERE u.user_id = ?");
         mysqli_stmt_bind_param($sqlPrep, "i", $userId);
         mysqli_stmt_execute($sqlPrep);
         mysqli_stmt_bind_result($sqlPrep, $permissionName);
@@ -105,7 +105,7 @@ function trimInput($data)
   <section class="login-section">
     <div class="login-block">
       <h2>Admin Login</h2>
-      <form class="login-form" action="login.php" method="post">
+      <form class="login-form" action="admin-login.php" method="post">
         <label class="login-label" for="email">Email Address</label>
         <input type="email" id="email" name="email" class="login-input" required value="<?php echo htmlspecialchars($email); ?>">
         <label class="login-label" for="password">Password</label>

@@ -29,7 +29,7 @@ if (isset($_GET['user_id'])) {
     die("Could not connect");
   }
 
-  $sqlPrep = mysqli_prepare($link, "SELECT u.user_id, u.username, u.email_address, r.role FROM admin_users u JOIN user_roles ur ON u.user_id = ur.user_id JOIN roles r ON ur.role_id = r.role_id  WHERE u.user_id = ?");
+  $sqlPrep = mysqli_prepare($link, "SELECT u.user_id, u.username, u.email_address, r.role_name FROM admin_users u JOIN user_roles ur ON u.user_id = ur.user_id JOIN roles r ON ur.role_id = r.role_id  WHERE u.user_id = ?");
   if ($sqlPrep) {
     mysqli_stmt_bind_param($sqlPrep, 'i', $userViewId);
     mysqli_execute($sqlPrep);
@@ -277,7 +277,7 @@ function trimInput($data)
           <button class="submit" type="submit"><?php echo ($userViewId === -1) ? 'Add' : 'Update' ?></button>
         </div>
       </form>
-      <?php if ($userViewId): ?>
+      <?php if ($userViewId !== -1): ?>
         <form class="delete-form" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
           <input type="hidden" name="delete_id" value="<?php echo $userViewId; ?>">
           <button class="submit delete-button">Delete User</button>

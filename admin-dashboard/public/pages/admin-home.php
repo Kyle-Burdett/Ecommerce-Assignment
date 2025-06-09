@@ -40,7 +40,7 @@ $permissions = $_SESSION['permissions'];
         <a href="admin-home.php" class="side-nav-link"><p class="nav-text">Home</p><img class="nav-icon" src="../icons/house.svg" alt="Home"></a>
       </div>
       <div class="side-nav-item">
-        <a href="admin-users.php" class="side-nav-link"><p class="nav-text">Users</p><img class="nav-icon" src="../icons/user.svg" alt="Users"></a>
+        <a href="all-users.php" class="side-nav-link"><p class="nav-text">Users</p><img class="nav-icon" src="../icons/user.svg" alt="Users"></a>
       </div>
       <div class="side-nav-item">
         <a href="site-customization.php" class="side-nav-link"><p class="nav-text">Site Customization</p><img class="nav-icon" src="../icons/paintbrush.svg" alt="Customize Site"></a>

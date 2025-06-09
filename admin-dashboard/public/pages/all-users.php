@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-session_start();
 if (!isset($_SESSION['user_id'])) {
   header('Location: admin-login.php');
   exit;
@@ -23,7 +22,7 @@ if ($link === false) {
   die("Could not connect to server");
 }
 
-$sqlPrep = mysqli_prepare($link, "SELECT  u.user_id, u.username, u.email_address, r.role FROM admin_users u JOIN user_roles ur ON u.user_id = ur.user_id JOIN roles r ON ur.role_id = r.role_id");
+$sqlPrep = mysqli_prepare($link, "SELECT  u.user_id, u.username, u.email_address, r.role_name FROM admin_users u JOIN user_roles ur ON u.user_id = ur.user_id JOIN roles r ON ur.role_id = r.role_id");
 mysqli_execute($sqlPrep);
 mysqli_stmt_bind_result($sqlPrep, $userViewId, $username, $email, $role);
 

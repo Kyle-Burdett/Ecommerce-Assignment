@@ -3,11 +3,12 @@ session_start();
 
 session_start();
 if (!isset($_SESSION['user_id'])) {
-  header('Location: login.php');
+  header('Location: admin-login.php');
   exit;
 }
 
 $requiredPermissions = ['manage_users', 'view_users'];
+$permissions = $_SESSION['permissions'];
 
 if (!array_intersect($requiredPermissions, $permissions)) {
   header('Location: admin-home.php');

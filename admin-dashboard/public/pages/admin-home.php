@@ -1,10 +1,13 @@
 <?php
 session_start();
 
-if (isset($_SESSION['user_id'])) {
-  header('Location: admin-home.php');
+if (!isset($_SESSION['user_id'])) {
+  header('Location: admin-login.php');
   exit;
 }
+
+$userId = $_SESSION['user_id'];
+$permissions = $_SESSION['permissions'];
 
 ?>
 

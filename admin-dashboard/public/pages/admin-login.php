@@ -35,16 +35,30 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
       if (password_verify($password, $userPassword)) {
         $userId = $row['user_id'];
-        $_SESSION['user_id'] = $userId;
         $errors['sign_in'] = "";
+        $_SESSION['user_id'] = $userId;
+        mysqli_stmt_close($emailSqlPrep);
+
+        $sqlPrep = mysqli_prepare($link, "SELECT DISTINCT p.permission_name FROM users u JOIN user_roles ur ON u.user_id = ur.user_id JOIN role_permissions rp ON ur.role_id = rp.role_id JOIN permissions p ON rp.permission_id = p.permission_id WHERE u.user_id = ?");
+        mysqli_stmt_bind_param($sqlPrep, "i", $userId);
+        mysqli_stmt_execute($sqlPrep);
+        mysqli_stmt_bind_result($sqlPrep, $permissionName);
+
+        $permissions = [];
+        while (mysqli_stmt_fetch($sqlPrep)) {
+          $permissions[] = $permissionName;
+        }
+
+        mysqli_stmt_close($sqlPrep);
+        $_SESSION['permissions'] = $permissions;
       } else {
         $errors['sign_in'] = $loginErrorMessage;
+        mysqli_stmt_close($emailSqlPrep);
       }
     } else {
       $errors['sign_in'] = $loginErrorMessage;
+      mysqli_stmt_close($emailSqlPrep);
     }
-
-    mysqli_stmt_close($emailSqlPrep);
   }
 
   mysqli_close($link);
@@ -53,10 +67,10 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     header('Location: admin-home.php');
     exit();
   }
-
 }
 
-function trimInput($data) {
+function trimInput($data)
+{
   $data = trim($data);
   return $data;
 }

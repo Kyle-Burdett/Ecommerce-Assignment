@@ -87,7 +87,7 @@ header {
 }
 
 .side-nav {
-  width: 300px;
+  width: 320px;
   min-height: 100vh;
   background-color: var(--primary-grey-light);
   border-right: 1px solid var(--primary-grey);
@@ -112,4 +112,34 @@ header {
 
 .side-nav-link p {
   font-weight: 600;
+}
+
+.nav-icon {
+  display: none;
+}
+
+.nav-active {
+  background-color: var(--primary-color);
+}
+
+@media only screen and (max-width: 767px) {
+  .side-nav {
+    width: 48px;
+  }
+
+  .side-nav-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .nav-icon {
+    display: block;
+    width: 16px;
+    height: 16px;
+  }
+
+  .nav-text {
+    display: none;
+  }
 }

@@ -1,0 +1,172 @@
+
+.all-users-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 64px;
+  background-color: var(--primary-grey-light);
+}
+
+h1 {
+  font-size: 36px;
+}
+
+.users-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  border-radius: 8px;
+  padding: 32px;
+  margin-top: 32px;
+}
+
+.users-header {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr;
+  align-items: center;
+}
+
+.user-header {
+  font-weight: 600;
+}
+
+.role-header {
+  text-align: center;
+}
+
+.role-text {
+  justify-content: center;
+}
+
+.user-link {
+  width: 100%;
+}
+
+.user-item {
+  width: 100%;
+  height: 64px;
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr;
+  border-top: 1px solid var(--primary-grey-light);
+  border-bottom: 1px solid var(--primary-grey-light);
+  padding: 4px 0;
+  cursor: pointer;
+  padding: 0 8px;
+}
+
+.user-item:hover {
+  background-color: var(--primary-grey-light);
+}
+
+.username {
+  padding-right: 4px;
+}
+
+.grid-item-text {
+  display: flex;
+  align-items: center;
+  height: 56px;
+}
+
+.no-users-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 32px 16px;
+}
+
+.heading-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.add-user-button {
+  border: none;
+  border-radius: 8px;
+  background-color: var(--primary-color);
+  cursor: pointer;
+  font-family: "Sora", sans-serif;
+  font-weight: 600;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.add-user-button:hover {
+  background-color: var(--primary-color-dark);
+}
+
+@media only screen and (max-width: 900px) {
+  .all-users-section {
+    padding: 64px 32px;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .all-users-section {
+    padding: 64px 16px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  .back-link {
+    font-size: 16px;
+  }
+
+  .users-container {
+    padding: 16px;
+  }
+
+  .users-header {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .user-item { 
+    padding: 0;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .quantity {
+    display: flex;
+    justify-content: center;
+  }
+
+  .email-header {
+    display: none;
+  }
+
+  .email-text {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .all-users-section {
+    padding: 32px 4px 64px 4px;
+  }
+
+  .grid-item-text, .order-header {
+    font-size: 14px;
+  }
+
+  .users-container {
+    border-radius: 0;
+  }
+
+  .price-header {
+    display: flex;
+    justify-content: center;
+  }
+}

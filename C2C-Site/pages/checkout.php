@@ -4,6 +4,8 @@ if (!isset($_SESSION['user_id'])) {
   header('Location: login.php');
 }
 
+require_once('db-credentials.php');
+
 $userId = intval($_SESSION['user_id']);
 $errors = array('address' => '');
 
@@ -12,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   if (isset($_POST['product-id'])) {
 
     $productId = intval($_POST['product-id']);
-    $link = mysqli_connect("localhost", "root", "", "c2c_db");
+    $link = mysqli_connect($hostName, $username, $password, $c2cDb);
 
     if ($link === false) {
       die("Could not connect");
@@ -69,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if (!array_filter($errors)) {
 
-      $link = mysqli_connect("localhost", "root", "", "c2c_db");
+      $link = mysqli_connect($hostName, $username, $password, $c2cDb);
 
       if ($link === false) {
         die("Could not connect");

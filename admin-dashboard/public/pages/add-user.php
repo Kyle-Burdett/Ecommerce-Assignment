@@ -5,6 +5,8 @@ if (!isset($_SESSION['user_id'])) {
   exit;
 }
 
+require_once('db-credentials.php');
+
 $userId = intval($_SESSION['user_id']);
 $permissions = $_SESSION['permissions'];
 $userRoleMap = [
@@ -23,7 +25,7 @@ $passwordRegex = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?+\-&])/';
 
 if (isset($_GET['user_id'])) {
   $userViewId = intval($_GET['user_id']);
-  $link = mysqli_connect("localhost", "root", "", "c2c_admin");
+  $link = mysqli_connect($hostName, $username, $password, $adminDb);
 
   if ($link === false) {
     die("Could not connect");
@@ -62,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   if (isset($_POST['delete_id'])) {
     $deleteId = intval($_POST['delete_id']);
 
-    $link = mysqli_connect("localhost", "root", "", "c2c_admin");
+    $link = mysqli_connect($hostName, $username, $password, $adminDb);
 
     if ($link === false) {
       die("Could not connect");
@@ -138,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       }
 
       $userRoleId = $userRoleMap[$userRole];
-      $link = mysqli_connect("localhost", "root", "", "c2c_admin");
+      $link = mysqli_connect($hostName, $username, $password, $adminDb);
 
       if ($link === false) {
         die("Could not connect");

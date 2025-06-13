@@ -6,6 +6,8 @@ if (!isset($_SESSION['user_id'])) {
   exit;
 }
 
+require_once('db-credentials.php');
+
 $permissions = $_SESSION['permissions'];
 
 if (!in_array('view_reports', $permissions)) {
@@ -37,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
   if (isset($_POST['report-select'])) {
     $reportSelect = intval($_POST['report-select']);
-    $link = mysqli_connect("localhost", "root", "", "c2c_db");
+    $link = mysqli_connect($hostName, $username, $password, $adminDb);
 
     if ($link === false) {
       die("Could not connect to server");

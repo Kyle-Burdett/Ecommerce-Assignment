@@ -6,6 +6,8 @@ if (!isset($_SESSION['user_id'])) {
   exit;
 }
 
+require_once('db-credentials.php');
+
 $requiredPermissions = ['manage_users', 'view_users'];
 $permissions = $_SESSION['permissions'];
 
@@ -16,7 +18,7 @@ if (!array_intersect($requiredPermissions, $permissions)) {
 
 $userId = intval($_SESSION['user_id']);
 
-$link = mysqli_connect("localhost", "root", "", "c2c_admin");
+$link = mysqli_connect($hostName, $username, $password, $adminDb);
 
 if ($link === false) {
   die("Could not connect to server");

@@ -6,6 +6,8 @@ if (!isset($_SESSION['user_id'])) {
   exit;
 }
 
+require_once('db-credentials.php');
+
 $userId = $_SESSION['user_id'];
 $permissions = $_SESSION['permissions'];
 

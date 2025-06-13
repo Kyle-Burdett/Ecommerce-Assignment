@@ -6,6 +6,8 @@ if (isset($_SESSION['user_id'])) {
   exit;
 }
 
+require_once('db-credentials.php');
+
 $errors = array('sign_in' => '');
 $loginErrorMessage = "Invalid Email or Password";
 
@@ -18,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
   $email = trimInput($_POST['email']);
   $password = trimInput($_POST['password']);
 
-  $link = mysqli_connect("localhost", "root", "", "c2c_admin");
+  $link = mysqli_connect($hostName, $username, $password, $adminDb);
   if ($link === false) {
     die("Error: Failed to connect. " . mysqli_connect_error());
   }

@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+require_once('db-credentials.php');
+
 $nameRegex = '/^[a-zA-Z\s]+$/';
 $passwordRegex = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?+\-&])/';
 $errors = array('first-name' => '', 'last-name' => '', 'email-address' => '', 'physical-address' => '', 'password' => '');
@@ -70,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
   if (!array_filter($errors)) {
 
     $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-    $link = mysqli_connect("localhost", "root", "", "c2c_db");
+    $link = mysqli_connect($hostName, $username, $password, $c2cDb);
 
     if ($link === false) {
       die("Error: Failed to connect. " . mysqli_connect_error());

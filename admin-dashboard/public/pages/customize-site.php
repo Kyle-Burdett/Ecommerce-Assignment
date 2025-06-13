@@ -6,6 +6,8 @@ if (!isset($_SESSION['user_id'])) {
   exit;
 }
 
+require_once('db-credentials.php');
+
 $userId = $_SESSION['user_id'];
 $permissions = $_SESSION['permissions'];
 
@@ -14,7 +16,7 @@ if (!in_array('edit_site', $permissions)) {
   exit;
 }
 
-$link = mysqli_connect("localhost", "root", "", "c2c_admin");
+$link = mysqli_connect($hostName, $username, $password, $adminDb);
 
   if ($link === false) {
     die("Could not connect");

@@ -6,6 +6,8 @@ if (!isset($_SESSION['user_id'])) {
   exit;
 }
 
+require_once('db-credentials.php');
+
 $userId = intval($_SESSION['user_id']);
 $search = '';
 $products = [];
@@ -22,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
   $sqlSearch = '%' . $search . '%';
 
-  $link = mysqli_connect("localhost", "root", "", "c2c_db");
+  $link = mysqli_connect($hostName, $username, $password, $c2cDb);
 
   if ($link === false) {
     die("Could not connect to server");

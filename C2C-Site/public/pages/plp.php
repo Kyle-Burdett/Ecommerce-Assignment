@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
   $sqlSearch = '%' . $search . '%';
 
-  $link = mysqli_connect($hostName, $username, $password, $c2cDb);
+  $link = mysqli_connect($hostName, $dbUsername, $dbPassword, $c2cDb);
 
   if ($link === false) {
     die("Could not connect to server");

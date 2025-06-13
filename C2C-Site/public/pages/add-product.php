@@ -11,7 +11,7 @@ $errors = array('name' => '', 'price' => '', 'description' => '', 'category' => 
 
 if (isset($_GET['product_id'])) {
   $productId = intval($_GET['product_id']);
-  $link = mysqli_connect($hostName, $username, $password, $c2cDb);
+  $link = mysqli_connect($hostName, $dbUsername, $dbPassword, $c2cDb);
 
   if ($link === false) {
     die("Could not connect");

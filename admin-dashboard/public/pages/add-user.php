@@ -25,7 +25,7 @@ $passwordRegex = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?+\-&])/';
 
 if (isset($_GET['user_id'])) {
   $userViewId = intval($_GET['user_id']);
-  $link = mysqli_connect($hostName, $username, $password, $adminDb);
+  $link = mysqli_connect($hostName, $dbUsername, $dbPassword, $adminDb);
 
   if ($link === false) {
     die("Could not connect");
@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   if (isset($_POST['delete_id'])) {
     $deleteId = intval($_POST['delete_id']);
 
-    $link = mysqli_connect($hostName, $username, $password, $adminDb);
+    $link = mysqli_connect($hostName, $dbUsername, $dbPassword, $adminDb);
 
     if ($link === false) {
       die("Could not connect");
@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       }
 
       $userRoleId = $userRoleMap[$userRole];
-      $link = mysqli_connect($hostName, $username, $password, $adminDb);
+      $link = mysqli_connect($hostName, $dbUsername, $dbPassword, $adminDb);
 
       if ($link === false) {
         die("Could not connect");

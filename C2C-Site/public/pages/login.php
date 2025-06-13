@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
   $email = trimInput($_POST['email']);
   $password = trimInput($_POST['password']);
 
-  $link = mysqli_connect($hostName, $username, $password, $c2cDb);
+  $link = mysqli_connect($hostName, $dbUsername, $dbPassword, $c2cDb);
   if ($link === false) {
     die("Error: Failed to connect. " . mysqli_connect_error());
   }

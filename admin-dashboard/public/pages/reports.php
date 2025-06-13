@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
   if (isset($_POST['report-select'])) {
     $reportSelect = intval($_POST['report-select']);
-    $link = mysqli_connect($hostName, $username, $password, $adminDb);
+    $link = mysqli_connect($hostName, $dbUsername, $dbPassword, $c2cDb);
 
     if ($link === false) {
       die("Could not connect to server");

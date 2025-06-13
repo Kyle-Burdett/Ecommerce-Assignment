@@ -18,7 +18,7 @@ if (!array_intersect($requiredPermissions, $permissions)) {
 
 $userId = intval($_SESSION['user_id']);
 
-$link = mysqli_connect($hostName, $username, $password, $adminDb);
+$link = mysqli_connect($hostName, $dbUsername, $dbPassword, $adminDb);
 
 if ($link === false) {
   die("Could not connect to server");

@@ -11,7 +11,7 @@ $searchCategory = "all";
 
 if (isset($_GET['product_id'])) {
   $productId = intval($_GET['product_id']);
-  $link = mysqli_connect($hostName, $username, $password, $c2cDb);
+  $link = mysqli_connect($hostName, $dbUsername, $dbPassword, $c2cDb);
 
   if ($link === false) {
     die("Could not connect");
@@ -45,7 +45,7 @@ if (isset($_GET['product_id'])) {
   header('Location: page-not-found.php');
 }
 
-$link = mysqli_connect($hostName, $username, $password, $c2cDb);
+$link = mysqli_connect($hostName, $dbUsername, $dbPassword, $c2cDb);
 
 if ($link === false) {
   die("Could not connect");

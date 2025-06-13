@@ -12,7 +12,7 @@ $userId = intval($_SESSION['user_id']);
 if (isset($_GET['order_id'])) {
 
   $orderId = intval($_GET['order_id']);
-  $link = mysqli_connect($hostName, $username, $password, $c2cDb);
+  $link = mysqli_connect($hostName, $dbUsername, $dbPassword, $c2cDb);
 
   if ($link === false) {
     die("Could not connect");
@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($status && $orderId) {
 
-      $link = mysqli_connect($hostName, $username, $password, $c2cDb);
+      $link = mysqli_connect($hostName, $dbUsername, $dbPassword, $c2cDb);
 
       if ($link === false) {
         die("Could not connect");

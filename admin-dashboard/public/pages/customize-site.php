@@ -16,7 +16,7 @@ if (!in_array('edit_site', $permissions)) {
   exit;
 }
 
-$link = mysqli_connect($hostName, $username, $password, $adminDb);
+$link = mysqli_connect($hostName, $dbUsername, $dbPassword, $adminDb);
 
   if ($link === false) {
     die("Could not connect");

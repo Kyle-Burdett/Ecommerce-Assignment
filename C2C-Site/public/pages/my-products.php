@@ -10,7 +10,7 @@ require_once('../../private/db-credentials.php');
 
 $userId = intval($_SESSION['user_id']);
 
-$link = mysqli_connect($hostName, $username, $password, $c2cDb);
+$link = mysqli_connect($hostName, $dbUsername, $dbPassword, $c2cDb);
 
 if ($link === false) {
   die("Could not connect to server");

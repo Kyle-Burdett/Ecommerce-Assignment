@@ -107,8 +107,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_FILES['product-image']) && $_FILES['product-image']['error'] === UPLOAD_ERR_OK) {
       $fileTmpPath = $_FILES['product-image']['tmp_name'];
       $fileName = $_FILES['product-image']['name'];
-      $fileSize = $_FILES['product-image']['size'];
-      $fileType = $_FILES['product-image']['type'];
       $fileNameCmps = explode(".", $fileName);
       $fileExtension = strtolower(end($fileNameCmps));
 
@@ -189,7 +187,7 @@ function trimInput($data)
   <header class="header">
     <div class="logo-icons-bar">
       <a class="header-logo-container" href="https://google.com"><img class="header-logo"
-          src="../images/logo-placeholder-image.png" alt="C2C Logo"></a>
+          src="../images/site-logo.png" alt="C2C Logo"></a>
       <div class="header-icons-container">
         <a class="header-icon" href="https://google.com">
           <p>Account</p><img src="../icons/user.svg" alt="Account Icon">

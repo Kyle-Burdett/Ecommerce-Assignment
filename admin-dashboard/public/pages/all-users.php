@@ -50,7 +50,7 @@ mysqli_stmt_bind_result($sqlPrep, $userViewId, $username, $email, $role);
     <header class="side-nav">
       <div class="logo-section">
         <a class="side-nav-logo-container" href="https://google.com"><img class="nav-header-logo"
-            src="../images/logo-placeholder-image.png" alt="C2C Logo"></a>
+            src="../images/site-logo.png" alt="C2C Logo"></a>
       </div>
       <div class="side-nav-items-container">
         <div class="side-nav-item">
@@ -59,12 +59,12 @@ mysqli_stmt_bind_result($sqlPrep, $userViewId, $username, $email, $role);
           </a>
         </div>
         <div class="side-nav-item nav-active">
-          <a href="admin-users.php" class="side-nav-link">
+          <a href="all-users.php" class="side-nav-link">
             <p class="nav-text">Users</p><img class="nav-icon" src="../icons/user.svg" alt="Users">
           </a>
         </div>
         <div class="side-nav-item">
-          <a href="site-customization.php" class="side-nav-link">
+          <a href="customize-site.php" class="side-nav-link">
             <p class="nav-text">Site Customization</p><img class="nav-icon" src="../icons/paintbrush.svg"
               alt="Customize Site">
           </a>

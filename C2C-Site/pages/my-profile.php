@@ -1,25 +1,10 @@
-<?php 
-
+<!-- <?php 
 session_start();
 if (!isset($_SESSION['user_id'])) {
   header('Location: login.php');
   exit;
 }
-
-$userId = intval($_SESSION['user_id']);
-
-$link = mysqli_connect("localhost", "root", "", "c2c_db");
-
-if ($link === false) {
-  die("Could not connect to server");
-}
-
-$sqlPrep = mysqli_prepare($link, "SELECT  order_id, order_status, total, shipping_address FROM orders WHERE seller_id = ?");
-mysqli_stmt_bind_param($sqlPrep, 'i', $userId);
-mysqli_execute($sqlPrep);
-mysqli_stmt_bind_result($sqlPrep, $orderId, $status, $total, $address);
-
-?>
+?> -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -28,22 +13,22 @@ mysqli_stmt_bind_result($sqlPrep, $orderId, $status, $total, $address);
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../styling/main.css">
-  <link rel="stylesheet" href="../styling/orders.css">
   <link rel="stylesheet" href="../styling/header.css">
   <link rel="stylesheet" href="../styling/footer.css">
+  <link rel="stylesheet" href="../styling/my-profile.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Sora:wght@100..800&display=swap"
     rel="stylesheet">
-  <title>Seller Orders</title>
+  <title>My Profile</title>
 </head>
 
 <body>
   <header class="header">
     <div class="logo-icons-bar">
       <a class="header-logo-container" href="https://google.com"><img class="header-logo"
-          src="../images/logo-placeholder-image.png" alt="C2C Logo"></a>
+          src="../images/site-logo.png" alt="C2C Logo"></a>
       <div class="header-icons-container">
         <a class="header-icon" href="https://google.com">
           <p>Account</p><img src="../icons/user.svg" alt="Account Icon">
@@ -76,48 +61,23 @@ mysqli_stmt_bind_result($sqlPrep, $orderId, $status, $total, $address);
       </form>
     </div>
   </header>
-  <section class="my-orders-section">
-    <div class="heading-back-container"><a class="back-link" onclick="history.back()"><img src="../icons/arrow-left.svg" alt="Back arrow"><p>Back</p></a><h1>Seller Orders</h1></div>
-    
-    <div class="orders-container">
-        <div class="orders-header">
-          <p class="order-header">Order Id</p>
-          <p class="order-header">Status</p>
-          <p class="address-header order-header">Address</p>
-          <p class="order-header total-header">Total</p>
+  <section class="my-profile-section">
+    <h1>My Profile</h1>
+    <div class="profile-nav-container">
+      <h2>Username</h2>
+      <div class="options-container">
+        <div class="buyer-container">
+          <h3>Buying</h3>
+          <p><a class="profile-link" href="buyer-orders.php">My Orders</a></p>
         </div>
-        <?php 
-
-        $hasOrders = false;
-        
-        while (mysqli_stmt_fetch($sqlPrep)) {
-          if (!$hasOrders) {
-            $hasOrders = true;
-          }
-          
-          $safeOrderId = urlencode(intval($orderId));
-          $orderIdFormatted = htmlspecialchars($orderId);
-          $orderStatus = htmlspecialchars($status);
-          $addressFormatted = htmlspecialchars($address);
-          $totalFormatted = htmlspecialchars(number_format($total, 2, ".", ","));
-          
-          $orderItem = "<a class=\"order-link\" href=\"order.php?order_id=$safeOrderId\"><div class=\"order-item\">
-          <p class=\"order-id grid-item-text\">$orderIdFormatted</p>
-          <p class=\"status-text grid-item-text\">$orderStatus</p>
-          <p class=\"address-text grid-item-text\">$addressFormatted</p>
-          <p class=\"total grid-item-text\">R $totalFormatted</p>
-        </div></a>";
-        echo $orderItem;
-        }
-
-        if (!$hasOrders) {
-          echo "<div class=\"no-orders-message\"><p>You have no orders</p></div>";
-        }
-
-        mysqli_stmt_close($sqlPrep);
-        mysqli_close($link);
-        ?>
+        <div class="seller-container">
+          <h3>Selling</h3>
+          <p class="profile-link"><a href="seller-info.php">My Seller Info</a></p>
+          <p class="profile-link"><a href="my-products.php">My Products</a></p>
+          <p class="profile-link"><a href="seller-orders.php">Orders</a></p>
+        </div>
       </div>
+    </div>
   </section>
   <footer>
     <div class="links-section">

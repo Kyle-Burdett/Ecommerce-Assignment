@@ -99,7 +99,7 @@ function trimInput($data)
   <header class="header">
     <div class="logo-icons-bar">
       <a class="header-logo-container" href="https://google.com"><img class="header-logo"
-          src="../images/logo-placeholder-image.png" alt="C2C Logo"></a>
+          src="../images/site-logo.png" alt="C2C Logo"></a>
     </div>
   </header>
   <section class="login-section">

@@ -33,17 +33,17 @@ $permissions = $_SESSION['permissions'];
     <header class="side-nav">
       <div class="logo-section">
       <a class="side-nav-logo-container" href="https://google.com"><img class="nav-header-logo"
-          src="../images/logo-placeholder-image.png" alt="C2C Logo"></a>
+          src="../images/site-logo.png" alt="C2C Logo"></a>
     </div>
     <div class="side-nav-items-container">
-      <div class="side-nav-item">
+      <div class="side-nav-item nav-active">
         <a href="admin-home.php" class="side-nav-link"><p class="nav-text">Home</p><img class="nav-icon" src="../icons/house.svg" alt="Home"></a>
       </div>
       <div class="side-nav-item">
         <a href="all-users.php" class="side-nav-link"><p class="nav-text">Users</p><img class="nav-icon" src="../icons/user.svg" alt="Users"></a>
       </div>
       <div class="side-nav-item">
-        <a href="site-customization.php" class="side-nav-link"><p class="nav-text">Site Customization</p><img class="nav-icon" src="../icons/paintbrush.svg" alt="Customize Site"></a>
+        <a href="customize-site.php" class="side-nav-link"><p class="nav-text">Site Customization</p><img class="nav-icon" src="../icons/paintbrush.svg" alt="Customize Site"></a>
       </div>
       <div class="side-nav-item">
         <a href="reports.php" class="side-nav-link"><p class="nav-text">Reports</p><img class="nav-icon" src="../icons/file.svg" alt="Reports"></a>

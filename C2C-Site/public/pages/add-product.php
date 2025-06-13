@@ -4,7 +4,7 @@ if (!isset($_SESSION['user_id'])) {
   header('Location: login.php');
 }
 
-require_once('db-credentials.php');
+require_once('../../private/db-credentials.php');
 
 $userId = intval($_SESSION['user_id']);
 $errors = array('name' => '', 'price' => '', 'description' => '', 'category' => '', 'inventory' => '');

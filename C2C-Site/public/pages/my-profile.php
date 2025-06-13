@@ -5,7 +5,7 @@ if (!isset($_SESSION['user_id'])) {
   exit;
 }
 
-require_once('db-credentials.php');
+require_once('../../private/db-credentials.php');
 
 ?>
 

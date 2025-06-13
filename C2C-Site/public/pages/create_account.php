@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-require_once('db-credentials.php');
+require_once('../../private/db-credentials.php');
 
 $nameRegex = '/^[a-zA-Z\s]+$/';
 $passwordRegex = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?+\-&])/';

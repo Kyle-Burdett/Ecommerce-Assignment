@@ -1,3 +1,4 @@
 "vendor/node_modules/*.log.DS_Store.env" 
-"C2C-Site/private/db-credentials.php"
-"admin-dashboard/private/db-credentials.php"
+
+admin-dashboard/private/db-credentials.php
+C2C-Site/private/db-credentials.php

@@ -18,24 +18,22 @@ if (!in_array('edit_site', $permissions)) {
 
 $link = mysqli_connect($hostName, $dbUsername, $dbPassword, $adminDb);
 
-  if ($link === false) {
-    die("Could not connect");
-  }
+if ($link === false) {
+  die("Could not connect");
+}
 
-  $siteLogo = "site_logo";
+$logoPath = "";
 
-  $sqlPrep = mysqli_prepare($link, "SELECT option_value FROM site_options WHERE option_name = ?");
+$siteOptionName = "site_logo";
+$sqlPrep = mysqli_prepare($link, "SELECT option_value FROM site_options WHERE option_name = ?");
   if ($sqlPrep) {
-    mysqli_stmt_bind_param($sqlPrep, 's', $siteLogo);
+    mysqli_stmt_bind_param($sqlPrep, 's', $siteOptionName);
     mysqli_execute($sqlPrep);
-    mysqli_stmt_bind_result($sqlPrep, $fetchedImagePath);
+    mysqli_stmt_bind_result($sqlPrep, $fetchedLogoPath);
 
     if (mysqli_stmt_fetch($sqlPrep)) {
-      $imagePath = $fetchedImagePath;
-    } else {
-      $imagePath = '../images/site-logo.png';
+      $logoPath = $fetchedLogoPath;
     }
-
     mysqli_stmt_close($sqlPrep);
   }
   mysqli_close($link);
@@ -55,10 +53,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if (in_array($fileExtension, $allowedfileExtensions)) {
 
-      $destPath = '../images/site-logo.png';
+      $uploadFileDir = '../images/';
+      $destPath = $uploadFileDir . $fileName;
+
+      if (file_exists($logoPath)) {
+        unlink($logoPath);
+      }
 
       if (move_uploaded_file($fileTmpPath, $destPath)) {
-        $productImagePath = $destPath;
+        $logoPath = $destPath;
+
+        $link = mysqli_connect($hostName, $dbUsername, $dbPassword, $adminDb);
+        $sqlPrep = mysqli_prepare($link, "UPDATE site_options SET option_value = ? WHERE option_name = ?");
+        if ($sqlPrep) {
+          mysqli_stmt_bind_param($sqlPrep, 'ss', $logoPath, $siteOptionName);
+          mysqli_execute($sqlPrep);
+          mysqli_stmt_close($sqlPrep);
+          
+        }
+        mysqli_close($link);
       } else {
         echo 'Error moving uploaded file.';
       }
@@ -94,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <header class="side-nav">
       <div class="logo-section">
         <a class="side-nav-logo-container" href="admin-home.php"><img class="nav-header-logo"
-            src="../images/site-logo.png" alt="C2C Logo"></a>
+            src="<?php echo htmlspecialchars($logoPath) ?>" alt="C2C Logo"></a>
       </div>
       <div class="side-nav-items-container">
         <div class="side-nav-item">
@@ -121,9 +134,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </header>
     <section class="customize-site-section">
       <h1>Customize Site</h1>
-      <form class="customize-form" method="post" action="customize-site.php" enctype="multipart/form-data">
+      <form id="customize-form" class="customize-form" method="post" action="customize-site.php" enctype="multipart/form-data">
+        <p class="response-text" id="response-text"></p>
         <label class="label" for="site-logo">Product Image</label>
-        <img class="image-preview" src="../images/site-logo.png" alt="Image Preview">
+        <img class="image-preview" src="<?php echo htmlspecialchars($logoPath) ?>" alt="Image Preview">
         <input class="image-input" type="file" id="site-logo" name="site-logo" alt="Site Logo">
         <div class="button-wrapper">
           <button class="submit" type="button" id="cancel-button" onclick="history.back()">Cancel</button>
@@ -132,6 +146,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       </form>
     </section>
   </div>
+  
+  <script>
+    // document.getElementById("customize-form").addEventListener("submit", async function(e) {
+    //   e.preventDefault();
+
+    //   const siteLogo = document.getElementById("site-logo");
+    //   const data = new FormData();
+    //   data.append("site-logo", siteLogo.files[0]);
+
+    //   try {
+    //     const response = await fetch("https://kyle-c2c.wuaze.com/backend-operations/customize-site-submission.php", {
+    //       method: "POST",
+    //       body: data,
+    //     });
+
+    //     const result = await response.text();
+    //     document.getElementById("response-text").innerText = result;
+    //     e.target.submit(); 
+    //   } catch (err) {
+    //     document.getElementById("response-text").innerText = "Upload failed.";
+    //   }
+    // });
+  </script>
 </body>
 
 </html>

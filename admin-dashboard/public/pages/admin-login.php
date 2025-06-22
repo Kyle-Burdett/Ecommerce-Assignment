@@ -8,6 +8,24 @@ if (isset($_SESSION['user_id'])) {
 
 require_once('../../private/db-credentials.php');
 
+$logoPath = "";
+
+$link = mysqli_connect($hostName, $dbUsername, $dbPassword, $adminDb);
+
+$siteOptionName = "site_logo";
+$sqlPrep = mysqli_prepare($link, "SELECT option_value FROM site_options WHERE option_name = ?");
+  if ($sqlPrep) {
+    mysqli_stmt_bind_param($sqlPrep, 's', $siteOptionName);
+    mysqli_execute($sqlPrep);
+    mysqli_stmt_bind_result($sqlPrep, $fetchedLogoPath);
+
+    if (mysqli_stmt_fetch($sqlPrep)) {
+      $logoPath = $fetchedLogoPath;
+    }
+    mysqli_stmt_close($sqlPrep);
+  }
+  mysqli_close($link);
+
 $errors = array('sign_in' => '');
 $loginErrorMessage = "Invalid Email or Password";
 
@@ -100,8 +118,8 @@ function trimInput($data)
 <body>
   <header class="header">
     <div class="logo-icons-bar">
-      <a class="header-logo-container" href="https://google.com"><img class="header-logo"
-          src="../images/site-logo.png" alt="C2C Logo"></a>
+      <a class="header-logo-container" href="admin-home.php"><img class="header-logo"
+          src="<?php echo htmlspecialchars($logoPath) ?>" alt="C2C Logo"></a>
     </div>
   </header>
   <section class="login-section">

@@ -9,6 +9,25 @@ require_once('../../private/db-credentials.php');
 
 $userId = intval($_SESSION['user_id']);
 $permissions = $_SESSION['permissions'];
+
+$logoPath = "";
+
+$link = mysqli_connect($hostName, $dbUsername, $dbPassword, $adminDb);
+
+$siteOptionName = "site_logo";
+$sqlPrep = mysqli_prepare($link, "SELECT option_value FROM site_options WHERE option_name = ?");
+  if ($sqlPrep) {
+    mysqli_stmt_bind_param($sqlPrep, 's', $siteOptionName);
+    mysqli_execute($sqlPrep);
+    mysqli_stmt_bind_result($sqlPrep, $fetchedLogoPath);
+
+    if (mysqli_stmt_fetch($sqlPrep)) {
+      $logoPath = $fetchedLogoPath;
+    }
+    mysqli_stmt_close($sqlPrep);
+  }
+  mysqli_close($link);
+
 $userRoleMap = [
   'admin' => 1,
   'manager' => 2,
@@ -216,8 +235,8 @@ function trimInput($data)
   <div class="side-nav-section-container">
     <header class="side-nav">
       <div class="logo-section">
-        <a class="side-nav-logo-container" href="https://google.com"><img class="nav-header-logo"
-            src="../images/site-logo.png" alt="C2C Logo"></a>
+        <a class="side-nav-logo-container" href="admin-home.php"><img class="nav-header-logo"
+            src="<?php echo htmlspecialchars($logoPath) ?>" alt="C2C Logo"></a>
       </div>
       <div class="side-nav-items-container">
         <div class="side-nav-item">

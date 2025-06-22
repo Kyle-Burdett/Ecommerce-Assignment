@@ -51,7 +51,7 @@ $sqlPrep = mysqli_prepare($link, "SELECT option_value FROM site_options WHERE op
   <div class="side-nav-section-container">
     <header class="side-nav">
       <div class="logo-section">
-      <a class="side-nav-logo-container" href="https://google.com"><img class="nav-header-logo"
+      <a class="side-nav-logo-container" href="admin-home.php"><img class="nav-header-logo"
           src="<?php echo htmlspecialchars($logoPath) ?>" alt="C2C Logo"></a>
     </div>
     <div class="side-nav-items-container">
@@ -77,7 +77,7 @@ $sqlPrep = mysqli_prepare($link, "SELECT option_value FROM site_options WHERE op
         <h6>View and Manage Admin Users</h6>
       </div>
       </a>
-      <a href="site-customization.php">
+      <a href="customize-site.php">
       <div class="option-container">
         <h6>Customize Site</h6>
       </div>

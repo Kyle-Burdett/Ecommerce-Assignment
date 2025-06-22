@@ -4,7 +4,7 @@ if (!isset($_SESSION['user_id'])) {
   header('Location: login.php');
 }
 
-require_once('db-credentials.php');
+require_once('../../private/db-credentials.php');
 
 $userId = intval($_SESSION['user_id']);
 $searchCategory = "all";
@@ -97,13 +97,13 @@ mysqli_close($link);
 <body>
   <header class="header">
     <div class="logo-icons-bar">
-      <a class="header-logo-container" href="https://google.com"><img class="header-logo"
+      <a class="header-logo-container" href="/public/pages/homepage.php"><img class="header-logo"
           src="../images/site-logo.png" alt="C2C Logo"></a>
       <div class="header-icons-container">
-        <a class="header-icon" href="https://google.com">
+        <a class="header-icon" href="/public/pages/my-profile.php">
           <p>Account</p><img src="../icons/user.svg" alt="Account Icon">
         </a>
-        <a class="header-icon" href="https://google.com">
+        <a class="header-icon" href="/public/pages/buyer-orders.php">
           <p>Orders</p><img src="../icons/bag-shopping.svg" alt="Orders Icon">
         </a>
       </div>
@@ -126,7 +126,7 @@ mysqli_close($link);
           <label class="search-label" for="search">Search</label>
           <input type="text" name="search" id="search" class="search-input">
           <button class="search-button" type="submit"><img src="../icons/magnifying-glass.svg"
-              alt="Orders Icon"></button>
+            alt="Orders Icon"></button>
         </div>
       </form>
     </div>
@@ -176,13 +176,6 @@ mysqli_close($link);
               <li><a href="/public/pages/my-profile.php">Account</a></li>
               <li><a href="/public/pages/buyer-orders.php">My Orders</a></li>
               <li><a href="/public/pages/seller-info.php">Seller Info</a></li>
-            </ul>
-          </div>
-          <div class="links-column">
-            <p class="links-column-heading">Site Information</p>
-            <ul>
-              <li><a href="https://www.google.com">Terms & Conditions</a></li>
-              <li><a href="https://www.google.com">Privacy Policy</a></li>
             </ul>
           </div>
         </div>

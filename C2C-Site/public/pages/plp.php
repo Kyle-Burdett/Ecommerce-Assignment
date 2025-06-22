@@ -74,13 +74,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 <body>
   <header class="header">
     <div class="logo-icons-bar">
-      <a class="header-logo-container" href="https://google.com"><img class="header-logo"
+      <a class="header-logo-container" href="/public/pages/homepage.php"><img class="header-logo"
           src="../images/site-logo.png" alt="C2C Logo"></a>
       <div class="header-icons-container">
-        <a class="header-icon" href="https://google.com">
+        <a class="header-icon" href="/public/pages/my-profile.php">
           <p>Account</p><img src="../icons/user.svg" alt="Account Icon">
         </a>
-        <a class="header-icon" href="https://google.com">
+        <a class="header-icon" href="/public/pages/buyer-orders.php">
           <p>Orders</p><img src="../icons/bag-shopping.svg" alt="Orders Icon">
         </a>
       </div>
@@ -89,19 +89,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
       <form class="search-form" action="plp.php" method="get">
         <div class="category-filter-container">
           <select title="category-filter" name="category" id="category" class="category-filter">
-            <option value="all" <?php echo ($searchCategory === 'all') ? 'selected' : '' ?>>All</option>
-            <option value="computers" <?php echo ($searchCategory === 'computers') ? 'selected' : '' ?>>Computers</option>
-            <option value="homemade" <?php echo ($searchCategory === 'homemade') ? 'selected' : '' ?>>Homemade</option>
-            <option value="tech" <?php echo ($searchCategory === 'tech') ? 'selected' : '' ?>>Tech</option>
-            <option value="furniture" <?php echo ($searchCategory === 'furniture') ? 'selected' : '' ?>>Furniture</option>
-            <option value="decor" <?php echo ($searchCategory === 'decor') ? 'selected' : '' ?>>Decor</option>
-            <option value="books" <?php echo ($searchCategory === 'books') ? 'selected' : '' ?>>Books</option>
-            <option value="uncategorized" <?php echo ($searchCategory === 'uncategorized') ? 'selected' : '' ?>>Uncategorized</option>
+            <option value="all">All</option>
+            <option value="computers">Computers</option>
+            <option value="homemade">Homemade</option>
+            <option value="tech">Tech</option>
+            <option value="furniture">Furniture</option>
+            <option value="decor">Decor</option>
+            <option value="books">Books</option>
+            <option value="uncategorized">Uncategorized</option>
           </select>
         </div>
         <div class="search-container">
           <label class="search-label" for="search">Search</label>
-          <input type="text" name="search" id="search" class="search-input" value="<?php echo htmlspecialchars($search) ?>">
+          <input type="text" name="search" id="search" class="search-input">
           <button class="search-button" type="submit"><img src="../icons/magnifying-glass.svg"
             alt="Orders Icon"></button>
         </div>
@@ -151,13 +151,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
               <li><a href="/public/pages/my-profile.php">Account</a></li>
               <li><a href="/public/pages/buyer-orders.php">My Orders</a></li>
               <li><a href="/public/pages/seller-info.php">Seller Info</a></li>
-            </ul>
-          </div>
-          <div class="links-column">
-            <p class="links-column-heading">Site Information</p>
-            <ul>
-              <li><a href="https://www.google.com">Terms & Conditions</a></li>
-              <li><a href="https://www.google.com">Privacy Policy</a></li>
             </ul>
           </div>
         </div>

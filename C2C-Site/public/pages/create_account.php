@@ -189,13 +189,6 @@ function trimInput($data)
               <li><a href="/public/pages/seller-info.php">Seller Info</a></li>
             </ul>
           </div>
-          <div class="links-column">
-            <p class="links-column-heading">Site Information</p>
-            <ul>
-              <li><a href="https://www.google.com">Terms & Conditions</a></li>
-              <li><a href="https://www.google.com">Privacy Policy</a></li>
-            </ul>
-          </div>
         </div>
       </div>
     </div>

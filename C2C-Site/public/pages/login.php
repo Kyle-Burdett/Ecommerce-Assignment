@@ -132,9 +132,9 @@ function trimInput($data) {
           <div class="links-column">
             <p class="links-column-heading">Profile Options</p>
             <ul>
-              <li><a href="/public/pages/my-profile.php">Account</a></li>
-              <li><a href="/public/pages/buyer-orders.php">My Orders</a></li>
-              <li><a href="/public/pages/seller-info.php">Seller Info</a></li>
+              <li><a href="my-profile.php">Account</a></li>
+              <li><a href="buyer-orders.php">My Orders</a></li>
+              <li><a href="seller-info.php">Seller Info</a></li>
             </ul>
           </div>
         </div>

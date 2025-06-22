@@ -44,13 +44,13 @@ mysqli_stmt_bind_result($sqlPrep, $orderId, $status, $total, $address);
 <body>
   <header class="header">
     <div class="logo-icons-bar">
-      <a class="header-logo-container" href="/public/pages/homepage.php"><img class="header-logo"
+      <a class="header-logo-container" href="homepage.php"><img class="header-logo"
           src="../images/site-logo.png" alt="C2C Logo"></a>
       <div class="header-icons-container">
-        <a class="header-icon" href="/public/pages/my-profile.php">
+        <a class="header-icon" href="my-profile.php">
           <p>Account</p><img src="../icons/user.svg" alt="Account Icon">
         </a>
-        <a class="header-icon" href="/public/pages/buyer-orders.php">
+        <a class="header-icon" href="buyer-orders.php">
           <p>Orders</p><img src="../icons/bag-shopping.svg" alt="Orders Icon">
         </a>
       </div>
@@ -139,9 +139,9 @@ mysqli_stmt_bind_result($sqlPrep, $orderId, $status, $total, $address);
           <div class="links-column">
             <p class="links-column-heading">Profile Options</p>
             <ul>
-              <li><a href="/public/pages/my-profile.php">Account</a></li>
-              <li><a href="/public/pages/buyer-orders.php">My Orders</a></li>
-              <li><a href="/public/pages/seller-info.php">Seller Info</a></li>
+              <li><a href="my-profile.php">Account</a></li>
+              <li><a href="buyer-orders.php">My Orders</a></li>
+              <li><a href="seller-info.php">Seller Info</a></li>
             </ul>
           </div>
         </div>

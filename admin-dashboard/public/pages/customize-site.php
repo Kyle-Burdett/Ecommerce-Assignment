@@ -148,26 +148,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   </div>
   
   <script>
-    // document.getElementById("customize-form").addEventListener("submit", async function(e) {
-    //   e.preventDefault();
+    document.getElementById("customize-form").addEventListener("submit", async function(e) {
+      e.preventDefault();
 
-    //   const siteLogo = document.getElementById("site-logo");
-    //   const data = new FormData();
-    //   data.append("site-logo", siteLogo.files[0]);
+      const siteLogo = document.getElementById("site-logo");
+      const data = new FormData();
+      data.append("site-logo", siteLogo.files[0]);
 
-    //   try {
-    //     const response = await fetch("https://kyle-c2c.wuaze.com/backend-operations/customize-site-submission.php", {
-    //       method: "POST",
-    //       body: data,
-    //     });
+      try {
+        const response = await fetch("https://kyle-c2c.wuaze.com/backend-operations/customize-site-submission.php", {
+          method: "POST",
+          body: data,
+        });
 
-    //     const result = await response.text();
-    //     document.getElementById("response-text").innerText = result;
-    //     e.target.submit(); 
-    //   } catch (err) {
-    //     document.getElementById("response-text").innerText = "Upload failed.";
-    //   }
-    // });
+        const result = await response.text();
+        document.getElementById("response-text").innerText = result;
+        e.target.submit(); 
+      } catch (err) {
+        document.getElementById("response-text").innerText = "Upload failed.";
+      }
+    });
   </script>
 </body>
 

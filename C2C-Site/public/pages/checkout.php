@@ -2,17 +2,90 @@
 session_start();
 if (!isset($_SESSION['user_id'])) {
   header('Location: login.php');
+  exit;
 }
 
 require_once('../../private/db-credentials.php');
 
+$link = mysqli_connect($hostName, $dbUsername, $dbPassword, $c2cDb);
+
+if ($link === false) {
+  die("Could not connect");
+}
+
+$logoPath = "";
+
+$siteOptionName = "site_logo";
+$sqlPrep = mysqli_prepare($link, "SELECT option_value FROM site_options WHERE option_name = ?");
+  if ($sqlPrep) {
+    mysqli_stmt_bind_param($sqlPrep, 's', $siteOptionName);
+    mysqli_execute($sqlPrep);
+    mysqli_stmt_bind_result($sqlPrep, $fetchedLogoPath);
+
+    if (mysqli_stmt_fetch($sqlPrep)) {
+      $logoPath = $fetchedLogoPath;
+    }
+    mysqli_stmt_close($sqlPrep);
+  }
+  mysqli_close($link);
+
 $userId = intval($_SESSION['user_id']);
 $errors = array('address' => '');
 
+if (isset($_GET['product-id'])) {
+
+  $productId = intval($_GET['product-id']);
+  $link = mysqli_connect($hostName, $dbUsername, $dbPassword, $c2cDb);
+
+  if ($link === false) {
+    die("Could not connect");
+  }
+
+  $sqlPrep = mysqli_prepare($link, "SELECT p.product_name, p.price, p.inventory, u.user_id FROM products p JOIN users u ON p.user_id = u.user_id WHERE product_id = ?");
+  if ($sqlPrep) {
+    mysqli_stmt_bind_param($sqlPrep, 'i', $productId);
+    mysqli_execute($sqlPrep);
+    mysqli_stmt_bind_result($sqlPrep, $fetchedName, $fetchedPrice, $inventory, $fetchedId);
+
+    if (mysqli_stmt_fetch($sqlPrep)) {
+      $name = $fetchedName;
+      $price = floatval($fetchedPrice);
+      $total = $price;
+      $inventory = intval($inventory);
+      $sellerId = intval($fetchedId);
+    } else {
+      mysqli_stmt_close($sqlPrep);
+      mysqli_close($link);
+      header('Location: plp.php');
+      exit;
+    }
+
+    mysqli_stmt_close($sqlPrep);
+  }
+
+  $sqlPrep = mysqli_prepare($link, "SELECT physical_address FROM users WHERE user_id = ?");
+  if ($sqlPrep) {
+    mysqli_stmt_bind_param($sqlPrep, 'i', $userId);
+    mysqli_execute($sqlPrep);
+    mysqli_stmt_bind_result($sqlPrep, $fetchedAddress);
+
+    if (mysqli_stmt_fetch($sqlPrep)) {
+      $address = $fetchedAddress;
+    } else {
+      $address = '';
+    }
+
+    mysqli_stmt_close($sqlPrep);
+
+    mysqli_close($link);
+  }
+} else {
+  header('Location: page-not-found.php');
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
+  $address = trimInput($_POST['shipping-address']);
   if (isset($_POST['product-id'])) {
-
     $productId = intval($_POST['product-id']);
     $link = mysqli_connect($hostName, $dbUsername, $dbPassword, $c2cDb);
 
@@ -41,71 +114,53 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
       mysqli_stmt_close($sqlPrep);
     }
+    mysqli_close($link);
+  }
 
-    $sqlPrep = mysqli_prepare($link, "SELECT physical_address FROM users WHERE user_id = ?");
-    if ($sqlPrep) {
-      mysqli_stmt_bind_param($sqlPrep, 'i', $userId);
-      mysqli_execute($sqlPrep);
-      mysqli_stmt_bind_result($sqlPrep, $fetchedAddress);
-
-      if (mysqli_stmt_fetch($sqlPrep)) {
-        $address = $fetchedAddress;
-      } else {
-        $address = '';
-      }
-
-      mysqli_stmt_close($sqlPrep);
-
-      mysqli_close($link);
-    }
+  if (empty($address)) {
+    $address = "";
+  } else if (strlen($address) > 100) {
+    $errors['address'] = "Address needs to be under 100 characters";
   } else {
-    $address = trimInput($_POST['physical-address']);
+    $errors['address'] = "";
+  }
 
-    if (empty($address)) {
-      $address = "";
-    } else if (strlen($address) > 100) {
-      $errors['address'] = "Address needs to be under 100 characters";
-    } else {
-      $errors['address'] = "";
+  if (!array_filter($errors)) {
+
+    $link = mysqli_connect($hostName, $dbUsername, $dbPassword, $c2cDb);
+
+    if ($link === false) {
+      die("Could not connect");
     }
 
-    if (!array_filter($errors)) {
+    $orderDate = date("Y-m-d H:i:s");
+    $orderStatus = "pending";
 
-      $link = mysqli_connect($hostName, $dbUsername, $dbPassword, $c2cDb);
-
-      if ($link === false) {
-        die("Could not connect");
+    $sqlPrep = mysqli_prepare($link, "INSERT INTO orders (order_date, order_status, total, shipping_address, buyer_id, seller_id) VALUES (?, ?, ?, ?, ?, ?)");
+    if ($sqlPrep) {
+      mysqli_stmt_bind_param($sqlPrep, "ssdsii", $orderDate, $orderStatus, $total, $address, $userId, $sellerId);
+      if (mysqli_execute($sqlPrep)) {
+        $orderId = intval(mysqli_insert_id($link));
       }
-
-      $orderDate = date("Y-m-d H:i:s");
-      $orderStatus = "pending";
-
-      $sqlPrep = mysqli_prepare($link, "INSERT INTO orders (order_date, order_status, total, shipping_address, buyer_id, seller_id) VALUES (?, ?, ?, ?, ?, ?)");
-      if ($sqlPrep) {
-        mysqli_stmt_bind_param($sqlPrep, "ssdsii", $orderDate, $orderStatus, $total, $address, $sellerId, $userId);
-        if (mysqli_execute($sqlPrep)) {
-          $orderId = intval(mysqli_insert_id($link));
-        }
-        mysqli_stmt_close($sqlPrep);
-      }
-
-      $sqlPrep = mysqli_prepare($link, "INSERT INTO order_items (order_id, product_id) VALUES (?, ?)");
-      if ($sqlPrep) {
-        mysqli_stmt_bind_param($sqlPrep, "ii", $orderId, $productId);
-        mysqli_execute($sqlPrep);
-        mysqli_stmt_close($sqlPrep);
-      }
-
-      $sqlPrep = mysqli_prepare($link, "UPDATE products SET inventory = inventory - 1 WHERE product_id = ? AND inventory > 0");
-      if ($sqlPrep) {
-        mysqli_stmt_bind_param($sqlPrep, "i", $productId);
-        mysqli_execute($sqlPrep);
-        mysqli_stmt_close($sqlPrep);
-      }
-
-      mysqli_close($link);
-      header('Location: buyer-orders.php');
+      mysqli_stmt_close($sqlPrep);
     }
+
+    $sqlPrep = mysqli_prepare($link, "INSERT INTO order_items (order_id, product_id) VALUES (?, ?)");
+    if ($sqlPrep) {
+      mysqli_stmt_bind_param($sqlPrep, "ii", $orderId, $productId);
+      mysqli_execute($sqlPrep);
+      mysqli_stmt_close($sqlPrep);
+    }
+
+    $sqlPrep = mysqli_prepare($link, "UPDATE products SET inventory = inventory - 1 WHERE product_id = ? AND inventory > 0");
+    if ($sqlPrep) {
+      mysqli_stmt_bind_param($sqlPrep, "i", $productId);
+      mysqli_execute($sqlPrep);
+      mysqli_stmt_close($sqlPrep);
+    }
+
+    mysqli_close($link);
+    header('Location: buyer-orders.php');
   }
 }
 
@@ -139,7 +194,7 @@ function trimInput($data)
   <header class="header">
     <div class="logo-icons-bar">
       <a class="header-logo-container" href="homepage.php"><img class="header-logo"
-          src="../images/site-logo.png" alt="C2C Logo"></a>
+          src="<?php echo htmlspecialchars($logoPath) ?>" alt="C2C Logo"></a>
       <div class="header-icons-container">
         <a class="header-icon" href="my-profile.php">
           <p>Account</p><img src="../icons/user.svg" alt="Account Icon">
@@ -167,7 +222,7 @@ function trimInput($data)
           <label class="search-label" for="search">Search</label>
           <input type="text" name="search" id="search" class="search-input">
           <button class="search-button" type="submit"><img src="../icons/magnifying-glass.svg"
-            alt="Orders Icon"></button>
+              alt="Orders Icon"></button>
         </div>
       </form>
     </div>
@@ -180,6 +235,7 @@ function trimInput($data)
       <h1>Checkout</h1>
     </div>
     <form class="checkout-container" method="post" action="checkout.php">
+      <input type="hidden" name="product-id" value="<?php echo htmlspecialchars($productId); ?>">
       <div class="checkout-input-container">
         <label class="label" for="shipping-address">Shipping Address</label>
         <p class="error-text"></p>
@@ -188,7 +244,7 @@ function trimInput($data)
       <div class="order-details-container">
         <div class="product-container">
           <h6 class="product-name"><?php echo htmlspecialchars($name) ?></h6>
-          <p class="quantity">x<?php echo htmlspecialchars($inventory) ?></p>
+          <p class="quantity">x1</p>
           <p class="product-price">R <?php echo number_format($price, 2, ".", ",") ?></p>
         </div>
         <div class="total-container">

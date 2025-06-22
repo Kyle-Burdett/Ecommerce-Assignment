@@ -3,6 +3,30 @@ session_start();
 if (!isset($_SESSION['user_id'])) {
   header('Location: login.php');
 }
+
+require_once('../../private/db-credentials.php');
+
+$link = mysqli_connect($hostName, $dbUsername, $dbPassword, $c2cDb);
+
+if ($link === false) {
+  die("Could not connect");
+}
+
+$logoPath = "";
+
+$siteOptionName = "site_logo";
+$sqlPrep = mysqli_prepare($link, "SELECT option_value FROM site_options WHERE option_name = ?");
+  if ($sqlPrep) {
+    mysqli_stmt_bind_param($sqlPrep, 's', $siteOptionName);
+    mysqli_execute($sqlPrep);
+    mysqli_stmt_bind_result($sqlPrep, $fetchedLogoPath);
+
+    if (mysqli_stmt_fetch($sqlPrep)) {
+      $logoPath = $fetchedLogoPath;
+    }
+    mysqli_stmt_close($sqlPrep);
+  }
+  mysqli_close($link);
 ?>
 
 <!DOCTYPE html>
@@ -27,7 +51,7 @@ if (!isset($_SESSION['user_id'])) {
   <header class="header">
     <div class="logo-icons-bar">
       <a class="header-logo-container" href="homepage.php"><img class="header-logo"
-          src="../images/site-logo.png" alt="C2C Logo"></a>
+          src="<?php echo htmlspecialchars($logoPath) ?>" alt="C2C Logo"></a>
       <div class="header-icons-container">
         <a class="header-icon" href="my-profile.php">
           <p>Account</p><img src="../icons/user.svg" alt="Account Icon">

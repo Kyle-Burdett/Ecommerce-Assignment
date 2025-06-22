@@ -7,6 +7,28 @@ if (!isset($_SESSION['user_id'])) {
 
 require_once('../../private/db-credentials.php');
 
+$link = mysqli_connect($hostName, $dbUsername, $dbPassword, $c2cDb);
+
+if ($link === false) {
+  die("Could not connect");
+}
+
+$logoPath = "";
+
+$siteOptionName = "site_logo";
+$sqlPrep = mysqli_prepare($link, "SELECT option_value FROM site_options WHERE option_name = ?");
+  if ($sqlPrep) {
+    mysqli_stmt_bind_param($sqlPrep, 's', $siteOptionName);
+    mysqli_execute($sqlPrep);
+    mysqli_stmt_bind_result($sqlPrep, $fetchedLogoPath);
+
+    if (mysqli_stmt_fetch($sqlPrep)) {
+      $logoPath = $fetchedLogoPath;
+    }
+    mysqli_stmt_close($sqlPrep);
+  }
+  mysqli_close($link);
+
 $userId = intval($_SESSION['user_id']);
 
 if (isset($_GET['order_id'])) {
@@ -96,9 +118,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die("Could not connect");
       }
 
-      $sqlPrep = mysqli_prepare($link, "UPDATE orders SET order_status = ? WHERE order_id = ?");
+      $updateDate = date("Y-m-d H:i:s");
+
+      if ($status == "shipping") {
+        $sqlPrep = mysqli_prepare($link, "UPDATE orders SET order_status = ?, shipping_date = ? WHERE order_id = ?");
+      } else {
+        $sqlPrep = mysqli_prepare($link, "UPDATE orders SET order_status = ?, received_date = ? WHERE order_id = ?");
+      }
       if ($sqlPrep) {
-        mysqli_stmt_bind_param($sqlPrep, "si", $status, $orderId);
+        mysqli_stmt_bind_param($sqlPrep, "ssi", $status, $updateDate, $orderId);
         mysqli_execute($sqlPrep);
         mysqli_stmt_close($sqlPrep);
       }
@@ -141,7 +169,7 @@ function trimInput($data)
   <header class="header">
     <div class="logo-icons-bar">
       <a class="header-logo-container" href="homepage.php"><img class="header-logo"
-          src="../images/site-logo.png" alt="C2C Logo"></a>
+          src="<?php echo htmlspecialchars($logoPath) ?>" alt="C2C Logo"></a>
       <div class="header-icons-container">
         <a class="header-icon" href="my-profile.php">
           <p>Account</p><img src="../icons/user.svg" alt="Account Icon">

@@ -294,7 +294,7 @@ function trimInput($data)
         <input class="input text-input" type="password" id="password" name="password" <?php echo ($userViewId == -1) ? "required" : "" ?>
           value="">
         <div class="button-wrapper">
-          <button class="submit" type="button" id="cancel-button" onclick="history.back()">Cancel</button>
+          <a class="submit button" type="button" id="cancel-button" href="all-users.php">Cancel</a>
           <button class="submit" type="submit"><?php echo ($userViewId === -1) ? 'Add' : 'Update' ?></button>
         </div>
       </form>

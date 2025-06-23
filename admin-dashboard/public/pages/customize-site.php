@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <img class="image-preview" src="<?php echo htmlspecialchars($logoPath) ?>" alt="Image Preview">
         <input class="image-input" type="file" id="site-logo" name="site-logo" alt="Site Logo">
         <div class="button-wrapper">
-          <button class="submit" type="button" id="cancel-button" onclick="history.back()">Cancel</button>
+          <a class="submit button" type="button" id="cancel-button" href="admin-home.php">Cancel</a>
           <button class="submit" type="submit">Update</button>
         </div>
       </form>
@@ -148,26 +148,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   </div>
   
   <script>
-    document.getElementById("customize-form").addEventListener("submit", async function(e) {
-      e.preventDefault();
+    // Script doesn't work on InfinityFree
+    // document.getElementById("customize-form").addEventListener("submit", async function(e) {
+    //   e.preventDefault();
 
-      const siteLogo = document.getElementById("site-logo");
-      const data = new FormData();
-      data.append("site-logo", siteLogo.files[0]);
+    //   const siteLogo = document.getElementById("site-logo");
+    //   const data = new FormData();
+    //   data.append("site-logo", siteLogo.files[0]);
 
-      try {
-        const response = await fetch("https://kyle-c2c.wuaze.com/backend-operations/customize-site-submission.php", {
-          method: "POST",
-          body: data,
-        });
+    //   try {
+    //     const response = await fetch("https://kyle-c2c.wuaze.com/C2C-Site/backend-operations/customize-site-submission.php", {
+    //       method: "POST",
+    //       body: data,
+    //     });
 
-        const result = await response.text();
-        document.getElementById("response-text").innerText = result;
-        e.target.submit(); 
-      } catch (err) {
-        document.getElementById("response-text").innerText = "Upload failed.";
-      }
-    });
+    //     const result = await response.text();
+    //     document.getElementById("response-text").innerText = result;
+    //     e.target.submit(); 
+    //   } catch (err) {
+    //     document.getElementById("response-text").innerText = "Upload failed" + err;
+    //   }
+    // });
   </script>
 </body>
 

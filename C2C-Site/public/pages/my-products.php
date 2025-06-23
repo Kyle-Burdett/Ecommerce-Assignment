@@ -103,7 +103,7 @@ mysqli_stmt_bind_result($sqlPrep, $productId, $name, $price, $category, $invento
   </header>
   <section class="my-products-section">
     <div class="heading-container">
-      <div class="heading-back-container"><a class="back-link" onclick="history.back()"><img src="../icons/arrow-left.svg" alt="Back arrow"><p>Back</p></a><h1>My Products</h1></div>
+      <div class="heading-back-container"><a class="back-link" href="my-profile.php"><img src="../icons/arrow-left.svg" alt="Back arrow"><p>Back</p></a><h1>My Products</h1></div>
       <a class="add-product-button" href="add-product.php">Add</a>
     </div>
     

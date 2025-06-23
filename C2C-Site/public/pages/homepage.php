@@ -28,6 +28,16 @@ $sqlPrep = mysqli_prepare($link, "SELECT option_value FROM site_options WHERE op
     mysqli_stmt_close($sqlPrep);
   }
   mysqli_close($link);
+
+  $link = mysqli_connect($hostName, $dbUsername, $dbPassword, $c2cDb);
+
+if ($link === false) {
+  die("Could not connect to server");
+}
+
+$sqlPrep = mysqli_prepare($link, "SELECT product_id, product_name, price, product_image FROM products ORDER BY product_id DESC LIMIT 10");
+mysqli_execute($sqlPrep);
+mysqli_stmt_bind_result($sqlPrep, $productId, $name, $price, $productImage);
 ?>
 
 <!DOCTYPE html>
@@ -89,146 +99,92 @@ $sqlPrep = mysqli_prepare($link, "SELECT option_value FROM site_options WHERE op
     <div class="list-section products-section">
       <h1>Featured Products</h1>
       <div class="featured-product-container">
-        <a class="card-link" href="www.google.com">
-          <div class="product-card">
-            <img src="../images/product-placeholder.jpg" alt="category-image">
-            <div class="product-text-container">
-              <p class="product-card-text">GTX 2000</p>
-              <p class="product-price">R 19 999</p>
+        <?php 
+
+        $hasProducts = false;
+        
+        while (mysqli_stmt_fetch($sqlPrep)) {
+          if (!$hasProducts) {
+            $hasProducts = true;
+          }
+          
+          $priceFormatted = htmlspecialchars(number_format($price, 2, ".", ","));
+          $nameFormatted = htmlspecialchars($name);
+          if (isset($productImage)) {
+            $imagePathFormatted = htmlspecialchars($productImage);
+          } else {
+            $imagePathFormatted = '../images/product-placeholder.jpg';
+          }
+          $safeProductId = urlencode(intval($productId));
+          $productItem = "<a class=\"card-link\" href=\"add-product.php?product_id=$safeProductId\">
+          <div class=\"product-card\">
+            <img src=\"$imagePathFormatted\" alt=\"$nameFormatted\">
+            <div class=\"product-text-container\">
+              <p class=\"product-card-text\">$nameFormatted</p>
+              <p class=\"product-price\">R $priceFormatted</p>
             </div>
           </div>
-        </a>
-        <a class="card-link" href="www.google.com">
-          <div class="product-card">
-            <img src="../images/product-placeholder.jpg" alt="category-image">
-            <div class="product-text-container">
-              <p class="product-card-text">GTX 2000</p>
-              <p class="product-price">R 19 999</p>
-            </div>
-          </div>
-        </a>
-        <a class="card-link" href="www.google.com">
-          <div class="product-card">
-            <img src="../images/product-placeholder.jpg" alt="category-image">
-            <div class="product-text-container">
-              <p class="product-card-text">GTX 2000</p>
-              <p class="product-price">R 19 999</p>
-            </div>
-          </div>
-        </a>
-        <a class="card-link" href="www.google.com">
-          <div class="product-card">
-            <img src="../images/product-placeholder.jpg" alt="category-image">
-            <div class="product-text-container">
-              <p class="product-card-text">GTX 2000</p>
-              <p class="product-price">R 19 999</p>
-            </div>
-          </div>
-        </a>
-        <a class="card-link" href="www.google.com">
-          <div class="product-card">
-            <img src="../images/product-placeholder.jpg" alt="category-image">
-            <div class="product-text-container">
-              <p class="product-card-text">GTX 2000</p>
-              <p class="product-price">R 19 999</p>
-            </div>
-          </div>
-        </a>
-        <a class="card-link" href="www.google.com">
-          <div class="product-card">
-            <img src="../images/product-placeholder.jpg" alt="category-image">
-            <div class="product-text-container">
-              <p class="product-card-text">GTX 2000</p>
-              <p class="product-price">R 19 999</p>
-            </div>
-          </div>
-        </a>
-        <a class="card-link" href="www.google.com">
-          <div class="product-card">
-            <img src="../images/product-placeholder.jpg" alt="category-image">
-            <div class="product-text-container">
-              <p class="product-card-text">GTX 2000</p>
-              <p class="product-price">R 19 999</p>
-            </div>
-          </div>
-        </a>
-        <a class="card-link" href="www.google.com">
-          <div class="product-card">
-            <img src="../images/product-placeholder.jpg" alt="category-image">
-            <div class="product-text-container">
-              <p class="product-card-text">GTX 2000</p>
-              <p class="product-price">R 19 999</p>
-            </div>
-          </div>
-        </a>
-        <a class="card-link" href="www.google.com">
-          <div class="product-card">
-            <img src="../images/product-placeholder.jpg" alt="category-image">
-            <div class="product-text-container">
-              <p class="product-card-text">GTX 2000</p>
-              <p class="product-price">R 19 999</p>
-            </div>
-          </div>
-        </a>
-        <a class="card-link" href="www.google.com">
-          <div class="product-card">
-            <img src="../images/product-placeholder.jpg" alt="category-image">
-            <div class="product-text-container">
-              <p class="product-card-text">GTX 2000</p>
-              <p class="product-price">R 19 999</p>
-            </div>
-          </div>
-        </a>
+        </a>";
+        echo $productItem;
+        }
+
+        if (!$hasProducts) {
+          echo "<div class=\"no-products-message\"><p>Currently no products</p></div>";
+        }
+
+        mysqli_stmt_close($sqlPrep);
+        mysqli_close($link);
+        ?>
       </div>
     </div>
     <div class="list-section">
       <h1>Popular Categories</h1>
       <div class="category-container">
-        <a class="card-link" href="www.google.com">
+        <a class="card-link" href="plp.php?category=computers&search=">
           <div class="category-card">
-            <img src="../images/product-placeholder.jpg" alt="category-image">
+            <img src="../images/computers.jpg" alt="Computers">
             <p class="card-text">Computers</p>
           </div>
         </a>
-        <a class="card-link" href="www.google.com">
+        <a class="card-link" href="plp.php?category=homemade&search=">
           <div class="category-card">
-            <img src="../images/product-placeholder.jpg" alt="category-image">
+            <img src="../images/homemade.jpg" alt="Homemade">
             <p class="card-text">Homemade</p>
           </div>
         </a>
-        <a class="card-link" href="www.google.com">
+        <a class="card-link" href="plp.php?category=tech&search=">
           <div class="category-card">
-            <img src="../images/product-placeholder.jpg" alt="category-image">
+            <img src="../images/tech.jpg" alt="Tech">
             <p class="card-text">Tech</p>
           </div>
         </a>
-        <a class="card-link" href="www.google.com">
+        <a class="card-link" href="plp.php?category=furniture&search=">
           <div class="category-card">
-            <img src="../images/product-placeholder.jpg" alt="category-image">
+            <img src="../images/furniture.jpg" alt="Furniture">
             <p class="card-text">Furniture</p>
           </div>
         </a>
-        <a class="card-link" href="www.google.com">
+        <a class="card-link" href="plp.php?category=decor&search=">
           <div class="category-card">
-            <img src="../images/product-placeholder.jpg" alt="category-image">
+            <img src="../images/decor.jpg" alt="Decor">
             <p class="card-text">Decor</p>
           </div>
         </a>
-        <a class="card-link" href="www.google.com">
+        <a class="card-link" href="plp.php?category=books&search=">
           <div class="category-card">
-            <img src="../images/product-placeholder.jpg" alt="category-image">
+            <img src="../images/books.jpg" alt="Books">
             <p class="card-text">Books</p>
           </div>
         </a>
-        <a class="card-link" href="www.google.com">
+        <a class="card-link" href="plp.php?category=fashion&search=">
           <div class="category-card">
-            <img src="../images/product-placeholder.jpg" alt="category-image">
+            <img src="../images/fashion.jpg" alt="Fashion">
             <p class="card-text">Fashion</p>
           </div>
         </a>
-        <a class="card-link" href="www.google.com">
+        <a class="card-link" href="plp.php?category=home&search=">
           <div class="category-card">
-            <img src="../images/product-placeholder.jpg" alt="category-image">
+            <img src="../images/home.jpg" alt="Home">
             <p class="card-text">Home</p>
           </div>
         </a>

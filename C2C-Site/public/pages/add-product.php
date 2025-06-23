@@ -16,17 +16,17 @@ $logoPath = "";
 
 $siteOptionName = "site_logo";
 $sqlPrep = mysqli_prepare($link, "SELECT option_value FROM site_options WHERE option_name = ?");
-  if ($sqlPrep) {
-    mysqli_stmt_bind_param($sqlPrep, 's', $siteOptionName);
-    mysqli_execute($sqlPrep);
-    mysqli_stmt_bind_result($sqlPrep, $fetchedLogoPath);
+if ($sqlPrep) {
+  mysqli_stmt_bind_param($sqlPrep, 's', $siteOptionName);
+  mysqli_execute($sqlPrep);
+  mysqli_stmt_bind_result($sqlPrep, $fetchedLogoPath);
 
-    if (mysqli_stmt_fetch($sqlPrep)) {
-      $logoPath = $fetchedLogoPath;
-    }
-    mysqli_stmt_close($sqlPrep);
+  if (mysqli_stmt_fetch($sqlPrep)) {
+    $logoPath = $fetchedLogoPath;
   }
-  mysqli_close($link);
+  mysqli_stmt_close($sqlPrep);
+}
+mysqli_close($link);
 
 $userId = intval($_SESSION['user_id']);
 $errors = array('name' => '', 'price' => '', 'description' => '', 'category' => '', 'inventory' => '');
@@ -79,78 +79,8 @@ if (isset($_GET['product_id'])) {
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-  if (isset($_POST['product_id'])) {
-    $productId = intval($_POST['product_id']);
-  }
-  $name = trimInput($_POST['product-name']);
-  $description = trimInput($_POST['product-description']);
-  $category = trimInput($_POST['product-category']);
-  $price = floatval($_POST['product-price']);
-  $inventory = intval($_POST['product-inventory']);
-
-  if (empty($name)) {
-    $errors['name'] = "A product name is required.";
-  } else {
-    if (strlen($name) > 100) {
-      $errors['name'] = "Name needs to be under 100 characters";
-    } else {
-      $errors['name'] = "";
-    }
-  }
-
-  if (!isset($price) || !is_numeric($price)) {
-    $errors['price'] = "A valid price is required.";
-  } else {
-    $errors['price'] = '';
-  }
-
-  if (empty($description)) {
-    $description = "";
-  } else if (strlen($description) > 1000) {
-    $errors['description'] = "Description needs to be under 1000 characters";
-  } else {
-    $errors['description'] = "";
-  }
-
-  if (!isset($inventory) || !is_numeric($inventory)) {
-    $errors['inventory'] = "A valid inventory is required.";
-  } else {
-    $errors['inventory'] = '';
-  }
-
-  if (empty($category)) {
-    $errors['category'] = "A category is required.";
-  } else {
-    $errors['category'] = "";
-  }
-
-  if (!array_filter($errors)) {
-
-    $productImagePath = $productImage;
-
-    if (isset($_FILES['product-image']) && $_FILES['product-image']['error'] === UPLOAD_ERR_OK) {
-      $fileTmpPath = $_FILES['product-image']['tmp_name'];
-      $fileName = $_FILES['product-image']['name'];
-      $fileNameCmps = explode(".", $fileName);
-      $fileExtension = strtolower(end($fileNameCmps));
-
-      $newFileName = time() . $fileName;
-
-      $allowedfileExtensions = array('jpg', 'gif', 'png', 'jpeg');
-
-      if (in_array($fileExtension, $allowedfileExtensions)) {
-        $uploadFileDir = '../uploads/products/';
-        $dest_path = $uploadFileDir . $newFileName;
-
-        if (move_uploaded_file($fileTmpPath, $dest_path)) {
-          $productImagePath = $dest_path;
-        } else {
-          echo 'Error moving uploaded file.';
-        }
-      } else {
-        echo 'Upload failed. Allowed types: ' . implode(',', $allowedfileExtensions);
-      }
-    }
+  if (isset($_POST['delete_id'])) {
+    $deleteId = intval($_POST['delete_id']);
 
     $link = mysqli_connect($hostName, $dbUsername, $dbPassword, $c2cDb);
 
@@ -158,26 +88,117 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       die("Could not connect");
     }
 
-    if ($productId === -1) {
-      $sqlPrep = mysqli_prepare($link, "INSERT INTO products (product_name, price, product_description, category, user_id, inventory, product_image) VALUES (?, ?, ?, ?, ?, ?, ?)");
-      if ($sqlPrep) {
-        mysqli_stmt_bind_param($sqlPrep, "sdssiis", $name, $price, $description, $category, $userId, $inventory, $productImagePath);
-        if (mysqli_execute($sqlPrep)) {
-          $productId = mysqli_insert_id($link);
-        }
-        mysqli_stmt_close($sqlPrep);
-      }
-    } else {
-      $sqlPrep = mysqli_prepare($link, "UPDATE products SET product_name = ?, price = ?, product_description = ?, category = ?, inventory = ?, product_image = ? WHERE product_id = ?");
-      if ($sqlPrep) {
-        mysqli_stmt_bind_param($sqlPrep, "sdssisi", $name, $price, $description, $category, $inventory, $productImagePath, $productId);
-        mysqli_execute($sqlPrep);
-        mysqli_stmt_close($sqlPrep);
-      }
+    $sqlPrep = mysqli_prepare($link, "DELETE FROM products WHERE product_id = ?");
+    if ($sqlPrep) {
+      mysqli_stmt_bind_param($sqlPrep, "i", $deleteId);
+      mysqli_execute($sqlPrep);
+      mysqli_stmt_close($sqlPrep);
     }
 
     mysqli_close($link);
-    
+    header('Location: my-products.php');
+    exit;
+  } else {
+    if (isset($_POST['product_id'])) {
+      $productId = intval($_POST['product_id']);
+    }
+    $name = trimInput($_POST['product-name']);
+    $description = trimInput($_POST['product-description']);
+    $category = trimInput($_POST['product-category']);
+    $price = floatval($_POST['product-price']);
+    $inventory = intval($_POST['product-inventory']);
+
+    if (empty($name)) {
+      $errors['name'] = "A product name is required.";
+    } else {
+      if (strlen($name) > 100) {
+        $errors['name'] = "Name needs to be under 100 characters";
+      } else {
+        $errors['name'] = "";
+      }
+    }
+
+    if (!isset($price) || !is_numeric($price)) {
+      $errors['price'] = "A valid price is required.";
+    } else {
+      $errors['price'] = '';
+    }
+
+    if (empty($description)) {
+      $description = "";
+    } else if (strlen($description) > 1000) {
+      $errors['description'] = "Description needs to be under 1000 characters";
+    } else {
+      $errors['description'] = "";
+    }
+
+    if (!isset($inventory) || !is_numeric($inventory)) {
+      $errors['inventory'] = "A valid inventory is required.";
+    } else {
+      $errors['inventory'] = '';
+    }
+
+    if (empty($category)) {
+      $errors['category'] = "A category is required.";
+    } else {
+      $errors['category'] = "";
+    }
+
+    if (!array_filter($errors)) {
+
+      $productImagePath = $productImage;
+
+      if (isset($_FILES['product-image']) && $_FILES['product-image']['error'] === UPLOAD_ERR_OK) {
+        $fileTmpPath = $_FILES['product-image']['tmp_name'];
+        $fileName = $_FILES['product-image']['name'];
+        $fileNameCmps = explode(".", $fileName);
+        $fileExtension = strtolower(end($fileNameCmps));
+
+        $newFileName = time() . $fileName;
+
+        $allowedfileExtensions = array('jpg', 'gif', 'png', 'jpeg');
+
+        if (in_array($fileExtension, $allowedfileExtensions)) {
+          $uploadFileDir = '../uploads/products/';
+          $dest_path = $uploadFileDir . $newFileName;
+
+          if (move_uploaded_file($fileTmpPath, $dest_path)) {
+            $productImagePath = $dest_path;
+          } else {
+            echo 'Error moving uploaded file.';
+          }
+        } else {
+          echo 'Upload failed. Allowed types: ' . implode(',', $allowedfileExtensions);
+        }
+      }
+
+      $link = mysqli_connect($hostName, $dbUsername, $dbPassword, $c2cDb);
+
+      if ($link === false) {
+        die("Could not connect");
+      }
+
+      if ($productId === -1) {
+        $sqlPrep = mysqli_prepare($link, "INSERT INTO products (product_name, price, product_description, category, user_id, inventory, product_image) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        if ($sqlPrep) {
+          mysqli_stmt_bind_param($sqlPrep, "sdssiis", $name, $price, $description, $category, $userId, $inventory, $productImagePath);
+          if (mysqli_execute($sqlPrep)) {
+            $productId = mysqli_insert_id($link);
+          }
+          mysqli_stmt_close($sqlPrep);
+        }
+      } else {
+        $sqlPrep = mysqli_prepare($link, "UPDATE products SET product_name = ?, price = ?, product_description = ?, category = ?, inventory = ?, product_image = ? WHERE product_id = ?");
+        if ($sqlPrep) {
+          mysqli_stmt_bind_param($sqlPrep, "sdssisi", $name, $price, $description, $category, $inventory, $productImagePath, $productId);
+          mysqli_execute($sqlPrep);
+          mysqli_stmt_close($sqlPrep);
+        }
+      }
+
+      mysqli_close($link);
+      header('Location: my-products.php');
+    }
   }
 }
 
@@ -239,7 +260,7 @@ function trimInput($data)
           <label class="search-label" for="search">Search</label>
           <input type="text" name="search" id="search" class="search-input">
           <button class="search-button" type="submit"><img src="../icons/magnifying-glass.svg"
-            alt="Orders Icon"></button>
+              alt="Orders Icon"></button>
         </div>
       </form>
     </div>
@@ -294,6 +315,12 @@ function trimInput($data)
         <button class="submit" type="submit"><?php echo ($productId === -1) ? 'Add' : 'Update' ?></button>
       </div>
     </form>
+    <?php if ($productId !== -1): ?>
+        <form class="delete-form" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+          <input type="hidden" name="delete_id" value="<?php echo $productId; ?>">
+          <button class="submit delete-button">Remove Product</button>
+        </form>
+      <?php endif; ?>
   </section>
   <footer>
     <div class="links-section">

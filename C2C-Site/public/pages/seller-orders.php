@@ -101,7 +101,7 @@ mysqli_stmt_bind_result($sqlPrep, $orderId, $status, $total, $address);
     </div>
   </header>
   <section class="my-orders-section">
-    <div class="heading-back-container"><a class="back-link" onclick="history.back()"><img src="../icons/arrow-left.svg" alt="Back arrow"><p>Back</p></a><h1>Seller Orders</h1></div>
+    <div class="heading-back-container"><a class="back-link" href="my-profile.php"><img src="../icons/arrow-left.svg" alt="Back arrow"><p>Back</p></a><h1>Seller Orders</h1></div>
     
     <div class="orders-container">
         <div class="orders-header">

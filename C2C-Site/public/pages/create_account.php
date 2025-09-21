@@ -169,7 +169,7 @@ function trimInput($data)
             <input type="text" id="first-name" name="first-name" class="login-input login-input-first" value="<?php echo htmlspecialchars($firstName) ?>" required>
           </div>
           <div class="name-input-container">
-            <label class="login-label" for="last-name">Last Name</label>
+            <label class="login-label" for="last-name">Full Name</label>
             <p id="last-name-error" class="error-text"><?php echo $errors['last-name']?></p>
             <input type="text" id="last-name" name="last-name" class="login-input login-input-first" value="<?php echo htmlspecialchars($lastName) ?>" required>
           </div>
